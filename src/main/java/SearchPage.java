@@ -13,11 +13,11 @@ public class SearchPage extends JFrame {
     private JTextField tipoText;
     private JList list1;
     private JPanel panel3;
-    private JLabel back;
     private JButton cercaButton;
     private JFrame frame;
     private Scanner scan;
     private ImageIcon icon;
+    private JButton back;
 
     public SearchPage() {
         icon = new ImageIcon(this.getClass().getResource("/back.png"));
@@ -30,18 +30,6 @@ public class SearchPage extends JFrame {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-
-       /* back.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent evt) {
-                back.setBackground(back.getForeground());
-                back.setForeground(Color.BLUE);
-            }
-            public void mouseExited(MouseEvent evt) {
-                Color c = back.getBackground();
-                back.setBackground(back.getForeground());
-                back.setForeground(c);
-            }
-        });*/
 
         back.addMouseListener(new MouseAdapter() {
             @Override

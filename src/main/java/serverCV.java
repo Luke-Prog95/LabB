@@ -3,13 +3,13 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 import java.util.Scanner;
 
 public class serverCV extends UnicastRemoteObject implements serverCVInterface {
+
+    private static Scanner scan = new Scanner(System.in);
 
     public serverCV() throws RemoteException {
     }
@@ -37,10 +37,6 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return null;
     }
 
-    @Override
-    public Boolean registraCittadino() throws RemoteException{
-        return null;
-    }
 
     @Override
     public Boolean inserisciEventiAvversi() throws RemoteException{
@@ -48,7 +44,6 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     }
 
     public static void main(String[] args) throws SQLException, RemoteException {
-        Scanner scan = new Scanner(System.in);
         /*System.out.print("Inserire user database: ");
         String userdb = scan.next();
         System.out.print("Inserire password database: ");
@@ -65,12 +60,29 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             Registry registro = LocateRegistry.createRegistry(1099);
             registro.bind("serverCV",s);
             System.out.println("\nServer ready in attesa di client");
+            Thread.sleep(1000);
+            while(true) {
+                System.out.println("\nCosa vuoi fare? \n1 - Registra centro vaccinale\n2 - Registra Vaccinato\n3 - Chiudi programma");
+                System.out.print("Scelta: ");
+                int r = scan.nextInt();
+                switch (r) {
+                    case 1:
+                        serverCV.registraCentroVaccinale();
+                        break;
+                    case 2:
+                        registraVaccinato();
+                        break;
+                    case 3:
+                        System.out.println("Chiusura programma");
+                        Thread.sleep(3000);
+                        System.exit(0);
+                        break;
+                    default: System.out.println("Scelta non valida");
+                }
+            }
         } catch (Exception e) {e.printStackTrace();}
 
-        /*System.out.println("\nCosa vuoi fare? \n1 - Registra centro vaccinale\n2 - Registra Vaccinato");
-        int r = scan.nextInt();
-        if (r==1) serverCV.registraCentroVaccinale();
-        else if (r==2) registraVaccinato();
+        /*
         Per registrare un cittadino dopo la vaccinazione, tramite la funzione inserire:
           nome centro vaccinale
           nome e cognome del cittadino
@@ -82,4 +94,32 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
           NomeCentroVaccinale deve essere sostituito dinamicamente dal nome del centro vaccinale*/
     }
 
+    @Override
+    public ResultSet logCittadino(String user) throws RemoteException, SQLException {
+            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+            PreparedStatement stmt = con.prepareStatement("SELECT Username,Pass FROM Cittadini_Registrati WHERE username = ?");
+            stmt.setString(1,user);
+            ResultSet rs = stmt.executeQuery();
+            return rs;
+    }
+
+    @Override
+    public ResultSet registraCittadino(String n,String c,String cf, String em, String u,String p) throws RemoteException, SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres","admin");
+        PreparedStatement stmt = con.prepareStatement("SELECT username FROM Cittadini_Registrati WHERE Username = ?");
+        stmt.setString(1,u);
+        ResultSet rs = stmt.executeQuery();
+        if(rs.next() == false){
+            String query = "INSERT INTO Cittadini_Registrati (Nome,Cognome,CodiceFiscale,Email,Username,Pass) VALUES (?,?,?,?,?,?)";
+            PreparedStatement stmt2 = con.prepareStatement(query);
+            stmt2.setString(1, n);
+            stmt2.setString(2, c);
+            stmt2.setString(3, cf);
+            stmt2.setString(4, em);
+            stmt2.setString(5, u);
+            stmt2.setString(6, p);
+            stmt2.executeUpdate();
+        }
+        return rs;
+    }
 }

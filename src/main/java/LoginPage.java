@@ -2,11 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.*;
@@ -21,7 +16,6 @@ public class LoginPage extends JFrame {
     private JButton cercaButton;
     private JFrame frame;
     private Scanner scan;
-    private ImageIcon vIcon;
     private serverCVInterface server;
 
     public LoginPage(){
@@ -53,27 +47,25 @@ public class LoginPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    serverCV s = new serverCV();
                     String user = userText.getText();
                     String p = password.getText();
-                    Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
-                    PreparedStatement stmt = con.prepareStatement("SELECT Username,Pass FROM Cittadini_Registrati WHERE username = ?");
-                    stmt.setString(1,user);
-                    ResultSet rs = stmt.executeQuery();
-                    if(user.equals("") || p.equals(""))
-                    {JOptionPane.showMessageDialog(signInButton,"Campo user o password vuoti!");}
-                    else if(rs.next() == false){
-                        JOptionPane.showMessageDialog(logInButton,"Utente Non Registrato!");
-                    } else{
+                    ResultSet rs = s.logCittadino(user);
+                    if (user.equals("") || p.equals("")) {
+                        JOptionPane.showMessageDialog(signInButton, "Campo user o password vuoti!");
+                    } else if (rs.next() == false) {
+                        JOptionPane.showMessageDialog(logInButton, "Utente Non Registrato!");
+                    } else {
                         String pas = rs.getString("Pass");
-                        if(pas.equals(p)){
-                            JOptionPane.showMessageDialog(logInButton,"Sei Loggato!");
+                        if (pas.equals(p)) {
+                            JOptionPane.showMessageDialog(logInButton, "Sei Loggato!");
                             frame.setVisible(false);
                             new LoggedPage();
+                        } else {
+                            JOptionPane.showMessageDialog(logInButton, "Password errata!");
                         }
-                        else{JOptionPane.showMessageDialog(logInButton,"Password errata!");}
                     }
-
-                }catch(Exception throwables) {
+                } catch (Exception throwables) {
                     throwables.printStackTrace();
                 }
             }
