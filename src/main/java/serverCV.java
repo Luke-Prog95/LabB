@@ -14,13 +14,52 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     public serverCV() throws RemoteException {
     }
 
-    private static void registraCentroVaccinale() throws RemoteException {
-        System.out.println("1");
+    private static void registraCentroVaccinale() throws RemoteException, SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        System.out.print("Nome centro: ");
+        String n = scan.next();
+        System.out.print("Comune: ");
+        String c = scan.next();
+        System.out.print("Qualificatore (via,piazza,v.le,...): ");
+        String q = scan.next();
+        System.out.print("Via: ");
+        String v = scan.next();
+        System.out.print("Numero civico: ");
+        String nc = scan.next();
+        System.out.print("Provincia (Sigla): ");
+        String p = scan.next();
+        System.out.print("CAP: ");
+        String cap = scan.next();
+        System.out.print("Tipo: ");
+        String t = scan.next();
+        String indirizzo = q+" "+v+" "+nc+" "+c+" "+p+" "+cap;
+        PreparedStatement stmt = con.prepareStatement("INSERT INTO CentriVaccinali (Nome,Indirizzo,Tipologia) VALUES (?,?,?)");
+        stmt.setString(1,n);
+        stmt.setString(2,indirizzo);
+        stmt.setString(3,t);
+        stmt.executeUpdate();
+        String nTab = "Vaccinati_"+n;
+        String query = "CREATE TABLE "+nTab+"(Nome VARCHAR(100), Cittadino VARCHAR(256), Codice_Fiscale VARCHAR(16), Data_prima_dose VARCHAR(100), Vaccino VARCHAR(100), Identificativo VARCHAR(100))";
+        System.out.println(nTab);
+        PreparedStatement stmt2 = con.prepareStatement(query);
+        stmt2.execute();
+        System.out.println("Centro vaccinale registrato");
     }
 
     private static void registraVaccinato() throws RemoteException {
         System.out.println("2");
     }
+
+    /*
+        Per registrare un cittadino dopo la vaccinazione, tramite la funzione inserire:
+          nome centro vaccinale
+          nome e cognome del cittadino
+          codice fiscale
+          data somministrazione vaccino (formato: gg/mm/aaaa)
+          vaccino somministrato (Pfizer, AstraZeneca, Moderna, J&J)
+          id univoco vaccinazione (id numerico su 16 bit)
+          I dati di ogni cittadino vaccinato sono memorizzati su DB in una Tabella denominata Vaccinati_NomeCentroVaccinale dove
+          NomeCentroVaccinale deve essere sostituito dinamicamente dal nome del centro vaccinale*/
 
     @Override
     public List<String> cercaCentroVaccinale(String centro) throws RemoteException{
@@ -67,10 +106,10 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                 int r = scan.nextInt();
                 switch (r) {
                     case 1:
-                        serverCV.registraCentroVaccinale();
+                        s.registraCentroVaccinale();
                         break;
                     case 2:
-                        registraVaccinato();
+                        s.registraVaccinato();
                         break;
                     case 3:
                         System.out.println("Chiusura programma");
@@ -81,17 +120,6 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                 }
             }
         } catch (Exception e) {e.printStackTrace();}
-
-        /*
-        Per registrare un cittadino dopo la vaccinazione, tramite la funzione inserire:
-          nome centro vaccinale
-          nome e cognome del cittadino
-          codice fiscale
-          data somministrazione vaccino (formato: gg/mm/aaaa)
-          vaccino somministrato (Pfizer, AstraZeneca, Moderna, J&J)
-          id univoco vaccinazione (id numerico su 16 bit)
-          I dati di ogni cittadino vaccinato sono memorizzati su DB in una Tabella denominata Vaccinati_NomeCentroVaccinale dove
-          NomeCentroVaccinale deve essere sostituito dinamicamente dal nome del centro vaccinale*/
     }
 
     @Override
