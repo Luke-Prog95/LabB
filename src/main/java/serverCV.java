@@ -46,28 +46,47 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         System.out.println("Centro vaccinale registrato");
     }
 
-    private static void registraVaccinato() throws RemoteException {
-        System.out.println("2");
+    private static void registraVaccinato() throws RemoteException, SQLException {
+        // - manca controllo nome centro vaccinale
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+            System.out.print("Centro vaccinale: ");
+            String n = scan.next();
+            System.out.print("Nome e Cognome: ");
+            String nc = scan.next();
+            System.out.print("Codice fiscale: ");
+            String cf = scan.next();
+            System.out.print("Data somministrazione vaccino (gg/mm/aaaa): ");
+            String data = scan.next();
+            System.out.print("Vaccino somministrato (Pfizer, AstraZeneca, Moderna, J&J): ");
+            String vac = scan.next();
+            System.out.print("ID: ");
+            String id = scan.next();
+            String nTab = "Vaccinati_"+n;
+            String query = "INSERT INTO "+ nTab + "(Nome,Cittadino,Codice_Fiscale, Data_prima_dose, Vaccino, Identificativo) VALUES(?,?,?,?,?,?)";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1,n);
+            stmt.setString(2,nc);
+            stmt.setString(3,cf);
+            stmt.setString(4,data);
+            stmt.setString(5,vac);
+            stmt.setString(6,id);
+            /*if (rs!=null){System.out.println("registrato");
+            } else {System.out.println("Tabella inesistente");}*/
     }
-
-    /*
-        Per registrare un cittadino dopo la vaccinazione, tramite la funzione inserire:
-          nome centro vaccinale
-          nome e cognome del cittadino
-          codice fiscale
-          data somministrazione vaccino (formato: gg/mm/aaaa)
-          vaccino somministrato (Pfizer, AstraZeneca, Moderna, J&J)
-          id univoco vaccinazione (id numerico su 16 bit)
-          I dati di ogni cittadino vaccinato sono memorizzati su DB in una Tabella denominata Vaccinati_NomeCentroVaccinale dove
-          NomeCentroVaccinale deve essere sostituito dinamicamente dal nome del centro vaccinale*/
 
     @Override
     public List<String> cercaCentroVaccinale(String centro) throws RemoteException{
+        /* 1 - query che seleziona tutti i centri vaccinali
+           2 - mettere il resultset in una lista
+         */
         return null;
     }
 
     @Override
     public List<String> cercaCentroVaccinale(String comune, String tipo) throws RemoteException{
+        /* 1 - query che seleziona tutti i centri vaccinali
+           2 - mettere il resultset in una lista
+         */
         return null;
     }
 

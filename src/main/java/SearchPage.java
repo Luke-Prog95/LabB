@@ -8,12 +8,13 @@ import java.rmi.RemoteException;
 import java.util.Scanner;
 
 public class SearchPage extends JFrame {
-    private JTextField nomeText;
-    private JTextField comuneText;
-    private JTextField tipoText;
-    private JList list1;
     private JPanel panel3;
     private JButton cercaButton;
+    private JTextArea textArea1;
+    private JList list1;
+    private JTextField textField1;
+    private JTextField textField2;
+    private JTextField textField3;
     private JFrame frame;
     private Scanner scan;
     private ImageIcon icon;
@@ -53,5 +54,6 @@ public class SearchPage extends JFrame {
             }
         });
     }
+
 
 }

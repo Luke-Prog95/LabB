@@ -22,7 +22,6 @@ public class LoginPage extends JFrame {
         try {
             Registry reg = LocateRegistry.getRegistry();
             server = (serverCVInterface) reg.lookup("serverCV");
-            System.out.println("Client connesso");
         }  catch (Exception m) {
             System.out.println("Client err:"+m.getMessage());}
         scan = new Scanner(System.in);

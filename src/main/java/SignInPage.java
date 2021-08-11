@@ -16,6 +16,7 @@ public class SignInPage extends JFrame {
     private JButton signInButton;
     private JTextField userText;
     private JComboBox comboBox1; //implementare scelta centro dove registrarsi
+    private JButton button1;
 
     public SignInPage(){
         frame1 = new JFrame("SignIn");
@@ -56,6 +57,13 @@ public class SignInPage extends JFrame {
                 } catch (SQLException | RemoteException throwables) {
                     throwables.printStackTrace();
                 }
+            }
+        });
+        button1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame1.setVisible(false);
+                new LoginPage();
             }
         });
     }
