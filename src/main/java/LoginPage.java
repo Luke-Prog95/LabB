@@ -1,3 +1,5 @@
+import org.postgresql.util.PSQLException;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -68,7 +70,9 @@ public class LoginPage extends JFrame {
                             JOptionPane.showMessageDialog(logInButton, "Password errata!");
                         }
                     }
-                } catch (Exception throwables) {
+                } /*catch (SQLException ex){
+                    ex.getSQLState();
+                } */catch (Exception throwables) {
                     throwables.printStackTrace();
                 }
             }

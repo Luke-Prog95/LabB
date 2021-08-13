@@ -1,3 +1,5 @@
+import org.postgresql.util.PSQLException;
+
 import javax.swing.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -152,16 +154,36 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                     default: System.out.println("Scelta non valida");
                 }
             }
+        } catch (PSQLException ex) {
+            if(ex.getSQLState().equals("3D000")){
+                System.out.println("Database non esistente\n\nCreazione Database");
+                Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", "postgres", "admin");
+                String query = "CREATE DATABASE \"LabB\"\n" +
+                        "    WITH \n" +
+                        "    OWNER = postgres\n" +
+                        "    ENCODING = 'UTF8'\n" +
+                        "    LC_COLLATE = 'Italian_Italy.1252'\n" +
+                        "    LC_CTYPE = 'Italian_Italy.1252'\n" +
+                        "    TABLESPACE = pg_default\n" +
+                        "    CONNECTION LIMIT = -1;\n";
+                PreparedStatement stm = con.prepareStatement(query);
+                stm.execute();
+                serverCV.main(args);
+            }
+            else { ex.printStackTrace(); }
         } catch (Exception e) {e.printStackTrace();}
     }
 
     @Override
     public ResultSet logCittadino(String user) throws RemoteException, SQLException {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
-            PreparedStatement stmt = con.prepareStatement("SELECT Username,Pass FROM Cittadini_Registrati WHERE username = ?");
-            stmt.setString(1,user);
-            ResultSet rs = stmt.executeQuery();
-            return rs;
+            //try {
+                Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+                PreparedStatement stmt = con.prepareStatement("SELECT Username,Pass FROM Cittadini_Registrati WHERE username = ?");
+                stmt.setString(1, user);
+                ResultSet rs = stmt.executeQuery();
+                return rs;
+            //} catch (PSQLException ex) {ex.getSQLState(); ex.getMessage();}
+        //return null;
     }
 
     @Override
