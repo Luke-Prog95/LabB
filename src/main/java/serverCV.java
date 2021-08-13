@@ -4,6 +4,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -62,16 +63,14 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             System.out.print("ID: ");
             String id = scan.next();
             String nTab = "Vaccinati_"+n;
-            String query = "INSERT INTO "+ nTab + "(Nome,Cittadino,Codice_Fiscale, Data_prima_dose, Vaccino, Identificativo) VALUES(?,?,?,?,?,?)";
+            String query = "UPDATE "+ nTab + " SET Data_prima_dose='"+data+"', Vaccino='"+vac+"', Identificativo=1 WHERE Codice_Fiscale='"+cf+"'";
             PreparedStatement stmt = con.prepareStatement(query);
-            stmt.setString(1,n);
-            stmt.setString(2,nc);
-            stmt.setString(3,cf);
-            stmt.setString(4,data);
-            stmt.setString(5,vac);
-            stmt.setString(6,id);
-            /*if (rs!=null){System.out.println("registrato");
-            } else {System.out.println("Tabella inesistente");}*/
+            stmt.executeUpdate();
+    }
+
+    @Override
+    public List<String> cercaCentroVaccinale() throws RemoteException, SQLException {
+        return null;
     }
 
     @Override
@@ -151,7 +150,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     }
 
     @Override
-    public ResultSet registraCittadino(String n,String c,String cf, String em, String u,String p) throws RemoteException, SQLException {
+    public ResultSet registraCittadino(String n,String c,String cf, String em, String u,String p, String nCen) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres","admin");
         PreparedStatement stmt = con.prepareStatement("SELECT username FROM Cittadini_Registrati WHERE Username = ?");
         stmt.setString(1,u);
@@ -167,6 +166,13 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             stmt2.setString(6, p);
             stmt2.executeUpdate();
         }
+        String query1 = "INSERT INTO Vaccinati_"+nCen+" (Nome, Cittadino, Codice_Fiscale) VALUES (?,?,?)";
+        String utente = n+" "+c;
+        PreparedStatement stmt3 = con.prepareStatement(query1);
+        stmt3.setString(1, nCen);
+        stmt3.setString(2, utente);
+        stmt3.setString(3, cf);
+        stmt3.executeUpdate();
         return rs;
     }
 }

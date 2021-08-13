@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class SignInPage extends JFrame {
     private JPanel panel2;
@@ -17,8 +18,9 @@ public class SignInPage extends JFrame {
     private JTextField userText;
     private JComboBox comboBox1; //implementare scelta centro dove registrarsi
     private JButton button1;
+    private ArrayList<String> l;
 
-    public SignInPage(){
+    public SignInPage() throws SQLException {
         frame1 = new JFrame("SignIn");
         frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame1.setPreferredSize(new Dimension(500,450));
@@ -27,6 +29,16 @@ public class SignInPage extends JFrame {
         frame1.pack();
         frame1.setLocationRelativeTo(null);
         frame1.setVisible(true);
+
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        PreparedStatement stm = con.prepareStatement("SELECT Nome FROM CentriVaccinali");
+        PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo FROM CentriVaccinali");
+        ResultSet rs = stm.executeQuery();
+        ResultSet rs2 = stm2.executeQuery();
+        while(rs.next() && rs2.next()){
+            String indir = rs2.getString(1);
+            comboBox1.addItem(rs.getString(1)+" ("+indir+")");
+        }
 
         signInButton.addActionListener(new ActionListener() {
             @Override
@@ -43,8 +55,10 @@ public class SignInPage extends JFrame {
                     String c = Surname.getText();
                     String cf = CodF.getText();
                     String em = Email.getText();
+                    String cen = (String) comboBox1.getSelectedItem();
+                    String[] nomeC = cen.split(" ");
                     serverCV sv = new serverCV();
-                    ResultSet rs = sv.registraCittadino(n,c,cf,em,user,p);
+                    ResultSet rs = sv.registraCittadino(n,c,cf,em,user,p,nomeC[0]);
                     if(user.trim().equals("") || p.trim().equals("") || n.trim().equals("")  || c.trim().equals("") || cf.trim().equals("") || em.trim().equals(""))
                     {JOptionPane.showMessageDialog(signInButton,"uno dei campi è vuoto!");}
                     else if(rs.next() == false){
@@ -68,3 +82,5 @@ public class SignInPage extends JFrame {
         });
     }
 }
+
+

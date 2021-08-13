@@ -38,7 +38,11 @@ public class LoginPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.setVisible(false);
-                new SignInPage();
+                try {
+                    new SignInPage();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
