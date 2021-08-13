@@ -1,7 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.rmi.RemoteException;
 import java.sql.*;
 
 public class SearchPage extends JFrame {
@@ -10,9 +13,10 @@ public class SearchPage extends JFrame {
     private JButton backButton;
     private JButton cercaButton;
     private JList lista;
-    private JTextField textField1;
-    private JTextField textField2;
-    private JTextField textField3;
+    private JTextField nomeText;
+    private JTextField comuneText;
+    private JTextField tipoText;
+    private JButton infoButton;
     private JFrame frame;
 
     public SearchPage(){
@@ -29,7 +33,7 @@ public class SearchPage extends JFrame {
         DefaultListModel<String> l = new DefaultListModel<String>();
         try {
             Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
-            PreparedStatement stm = con.prepareStatement("SELECT Nome,Indirizzo FROM CentriVaccinali");
+            PreparedStatement stm = con.prepareStatement("SELECT Nome,Indirizzo_Unico FROM CentriVaccinali");
             ResultSet rs = stm.executeQuery();
             while(rs.next()){
                 l.addElement(rs.getString(1)+" ("+rs.getString(2)+")");
@@ -38,15 +42,48 @@ public class SearchPage extends JFrame {
             ex.printStackTrace();
         }
         lista.setModel(l);
+        lista.setSelectedIndex(0);
 
-        backButton.addMouseListener(new MouseAdapter() {
+            backButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    frame.setVisible(false);
+                    new LoginPage();
+                }
+            });
+
+            cercaButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    serverCV s = null;
+                    try {
+                        s = new serverCV();
+                        if (nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
+                            JOptionPane.showMessageDialog(cercaButton, "Nessun criterio inserito");
+                        else if (!nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
+                            lista.setModel(s.cercaCentroVaccinale(nomeText.getText().trim()));
+                        else if (nomeText.getText().trim().isEmpty() && !comuneText.getText().trim().isEmpty() && !tipoText.getText().trim().isEmpty())
+                            lista.setModel(s.cercaCentroVaccinale(comuneText.getText().trim(), tipoText.getText().trim()));
+                        else JOptionPane.showMessageDialog(cercaButton, "Criteri non adatti");
+                    } catch (RemoteException | SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+
+        infoButton.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                frame.setVisible(false);
-                new LoginPage();
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    serverCV s = new serverCV();
+                    String valore = lista.getSelectedValue().toString();
+                    textArea1.setText(valore);
+                    //textArea1.setText(s.visualizzaInfoCentroVaccinale());
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
-
     }
 
     public static void main(String[] args) {
@@ -55,12 +92,3 @@ public class SearchPage extends JFrame {
 
 }
 
-
-     /*  serverCV s = new serverCV();
-                if (nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
-                    JOptionPane.showMessageDialog(cercaButton,"Nessun criterio inserito");
-                else if (!nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
-                    s.cercaCentroVaccinale(nomeText.getText().trim());
-                else if (nomeText.getText().trim().isEmpty() && !comuneText.getText().trim().isEmpty() && !tipoText.getText().trim().isEmpty())
-                    s.cercaCentroVaccinale(comuneText.getText().trim(),tipoText.getText().trim());
-                else JOptionPane.showMessageDialog(cercaButton,"Criteri non adatti");*/

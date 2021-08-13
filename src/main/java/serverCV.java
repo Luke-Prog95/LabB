@@ -23,21 +23,27 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         String c = scan.next();
         System.out.print("Qualificatore (via,piazza,v.le,...): ");
         String q = scan.next();
-        System.out.print("Via: ");
+        System.out.print(q +": ");
         String v = scan.next();
         System.out.print("Numero civico: ");
         String nc = scan.next();
         System.out.print("Provincia (Sigla): ");
         String p = scan.next();
         System.out.print("CAP: ");
-        String cap = scan.next();
+        int cap = scan.nextInt();
         System.out.print("Tipo: ");
         String t = scan.next();
         String indirizzo = q+" "+v+" "+nc+" "+c+" "+p+" "+cap;
-        PreparedStatement stmt = con.prepareStatement("INSERT INTO CentriVaccinali (Nome,Indirizzo,Tipologia) VALUES (?,?,?)");
+        PreparedStatement stmt = con.prepareStatement("INSERT INTO CentriVaccinali (Nome,Indirizzo_Unico,Tipologia,Identificatore,Nome_Via,Num_Civico,Comune,CAP,Provincia) VALUES (?,?,?,?,?,?,?,?,?)");
         stmt.setString(1,n);
         stmt.setString(2,indirizzo);
         stmt.setString(3,t);
+        stmt.setString(4,q);
+        stmt.setString(5,v);
+        stmt.setString(6,nc);
+        stmt.setString(7,c);
+        stmt.setInt(8,cap);
+        stmt.setString(9,p);
         stmt.executeUpdate();
         String nTab = "Vaccinati_"+n;
         String query = "CREATE TABLE "+nTab+"(Nome VARCHAR(100), Cittadino VARCHAR(256), Codice_Fiscale VARCHAR(16), Data_prima_dose VARCHAR(100), Vaccino VARCHAR(100), Identificativo VARCHAR(100))";
@@ -68,29 +74,38 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             stmt.executeUpdate();
     }
 
+
     @Override
-    public List<String> cercaCentroVaccinale() throws RemoteException, SQLException {
-        return null;
+    public DefaultListModel<String> cercaCentroVaccinale(String centro) throws RemoteException, SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        String query = "SELECT Nome,Indirizzo_Unico FROM CentriVaccinali WHERE Nome LIKE '"+centro+"%'";
+        PreparedStatement stm = con.prepareStatement(query);
+        ResultSet rs = stm.executeQuery();
+        DefaultListModel<String> l = new DefaultListModel<String>();
+        while (rs.next()){
+            l.addElement(rs.getString(1)+" ("+rs.getString(2)+")");
+        }
+        return l;
     }
 
     @Override
-    public List<String> cercaCentroVaccinale(String centro) throws RemoteException{
-        /* 1 - query che seleziona tutti i centri vaccinali
-           2 - mettere il resultset in una lista
-         */
-        return null;
+    public DefaultListModel<String> cercaCentroVaccinale(String comune, String tipo) throws RemoteException, SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        String query = "SELECT Nome,Indirizzo_Unico FROM CentriVaccinali WHERE Tipologia = '"+tipo+"' AND Comune='"+comune+"'";
+        PreparedStatement stm = con.prepareStatement(query);
+        ResultSet rs = stm.executeQuery();
+        DefaultListModel<String> l = new DefaultListModel<String>();
+        while (rs.next()){
+            l.addElement(rs.getString(1)+" ("+rs.getString(2)+")");
+        }
+        return l;
     }
 
     @Override
-    public List<String> cercaCentroVaccinale(String comune, String tipo) throws RemoteException{
-        /* 1 - query che seleziona tutti i centri vaccinali
-           2 - mettere il resultset in una lista
-         */
-        return null;
-    }
+    public String visualizzaInfoCentroVaccinale(String nome) throws RemoteException, SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
 
-    @Override
-    public String visualizzaInfoCentroVaccinale() throws RemoteException{
+
         return null;
     }
 
