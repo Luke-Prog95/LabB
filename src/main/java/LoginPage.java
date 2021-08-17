@@ -35,7 +35,7 @@ public class LoginPage extends JFrame {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "qwerty");
 
         signInButton.addActionListener(new ActionListener() {
             @Override
@@ -66,10 +66,11 @@ public class LoginPage extends JFrame {
                         if (pas.equals(p)) {
                             PreparedStatement stm1 = con.prepareStatement("SELECT Idvac FROM Cittadini_Registrati WHERE Username ='"+user+"'");
                             ResultSet rs1 = stm1.executeQuery();
-                            if(rs1.next() && (rs1.getString(1)!=null)) {
+                            if(rs1.next() && (Integer.toString(rs1.getInt(1))!=null)) {
                                 JOptionPane.showMessageDialog(logInButton, "Sei Loggato!");
                                 frame.setVisible(false);
-                                new LoggedPage(user,rs1.getString(1));
+                                new LoggedPage(user,Integer.toString(rs1.getInt(1)));
+                                System.out.println(rs1.getInt(1));
                             } else {
                                 JOptionPane.showMessageDialog(logInButton, "Utente: "+user+"\nNon hai ancora effettuato il vaccino!\nNon è possibile compilare il report!");
                             }

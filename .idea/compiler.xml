@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="LabB" />
         <module name="Login" />
+        <module name="progetto" />
       </profile>
     </annotationProcessing>
   </component>
