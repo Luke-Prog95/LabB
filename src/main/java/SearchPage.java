@@ -48,7 +48,11 @@ public class SearchPage extends JFrame {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     frame.setVisible(false);
-                    new LoginPage();
+                    try {
+                        new LoginPage();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             });
 
@@ -76,10 +80,11 @@ public class SearchPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     serverCV s = new serverCV();
-                    String valore = lista.getSelectedValue().toString();
-                    textArea1.setText(valore);
-                    //textArea1.setText(s.visualizzaInfoCentroVaccinale());
-                } catch (RemoteException ex) {
+                    String[] valore = lista.getSelectedValue().toString().split(" \\(");
+                    String nome = valore[0];
+                    System.out.println(valore[0]+valore[1]);
+                    textArea1.setText(s.visualizzaInfoCentroVaccinale(nome));
+                } catch (RemoteException | SQLException ex) {
                     ex.printStackTrace();
                 }
             }

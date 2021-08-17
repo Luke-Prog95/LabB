@@ -2,6 +2,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.sql.SQLException;
 
 public class clientCV {
     /*
@@ -15,7 +16,7 @@ public class clientCV {
             }
 */
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         new LoginPage();
     }
 }

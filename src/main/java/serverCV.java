@@ -106,15 +106,43 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     @Override
     public String visualizzaInfoCentroVaccinale(String nome) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
-
-
-        return null;
+        String risultato = "Nome centro: "+nome+"\nIndirizzo: ";
+        PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo_Unico FROM CentriVaccinali WHERE Nome = '"+nome+"'");
+        ResultSet rs2 = stm2.executeQuery();
+        if(rs2.next())
+         risultato += rs2.getString(1)+"\n\nEventi avversi:\n\n" +
+                 "Mal di testa          -->   Numero segnalazioni:        Severità media:\n" +
+                 "Febbre                 -->   Numero segnalazioni:        Severità media:\n" +
+                 "Dolori muscolari  -->   Numero segnalazioni:        Severità media:\n" +
+                 "Linfoadenopatia   -->   Numero segnalazioni:        Severità media:\n" +
+                 "Tachicardia          -->   Numero segnalazioni:        Severità media:\n" +
+                 "Crisi ipertensiva   -->   Numero segnalazioni:        Severità media:";
+        return risultato;
     }
 
 
     @Override
-    public Boolean inserisciEventiAvversi() throws RemoteException{
-        return null;
+    public Boolean inserisciEventiAvversi(int id,int malt, int febbre, int dolori, int linfo, int tachi, int crisi) throws RemoteException, SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        PreparedStatement stm2 = con.prepareStatement("SELECT identita FROM Sintomi WHERE identita = '"+id+"'");
+        ResultSet rs2 = stm2.executeQuery();
+        if(rs2.next()){
+            String query2 = "UPDATE Sintomi SET Testa = "+malt+" ,Febbre = "+febbre+" ,Dolori = "+dolori+" ,Linfo = "+linfo+" ,Tachicardia = "+tachi+" ,Crisi = "+crisi+" WHERE Identita = "+id;
+            PreparedStatement stm3 = con.prepareStatement(query2);
+            stm3.executeUpdate();
+        }else {
+            String query = "INSERT INTO Sintomi VALUES (?,?,?,?,?,?,?)";
+            PreparedStatement stm = con.prepareStatement(query);
+            stm.setInt(1, id);
+            stm.setInt(2, malt);
+            stm.setInt(3, febbre);
+            stm.setInt(4, dolori);
+            stm.setInt(5, linfo);
+            stm.setInt(6, tachi);
+            stm.setInt(7, crisi);
+            stm.executeUpdate();
+        }
+        return true;
     }
 
     public static void main(String[] args) throws SQLException, RemoteException {

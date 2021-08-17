@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="LoggedPage">
   <grid id="27dc6" binding="panel4" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-    <margin top="0" left="0" bottom="0" right="0"/>
+    <margin top="10" left="10" bottom="10" right="10"/>
     <constraints>
       <xy x="20" y="20" width="556" height="425"/>
     </constraints>
@@ -88,14 +88,6 @@
               <text value="Crisi ipertensiva"/>
             </properties>
           </component>
-          <component id="6bbcd" class="javax.swing.JButton" binding="confermaButton" default-binding="true">
-            <constraints>
-              <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Conferma"/>
-            </properties>
-          </component>
           <component id="6133e" class="javax.swing.JTextField" binding="textField1" default-binding="true">
             <constraints>
               <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
@@ -119,10 +111,10 @@
             <properties>
               <majorTickSpacing value="1"/>
               <maximum value="5"/>
-              <minimum value="1"/>
+              <minimum value="0"/>
               <paintLabels value="true"/>
               <paintTicks value="true"/>
-              <value value="1"/>
+              <value value="0"/>
             </properties>
           </component>
           <component id="d1528" class="javax.swing.JSlider" binding="slider3" default-binding="true">
@@ -132,10 +124,10 @@
             <properties>
               <majorTickSpacing value="1"/>
               <maximum value="5"/>
-              <minimum value="1"/>
+              <minimum value="0"/>
               <paintLabels value="true"/>
               <paintTicks value="true"/>
-              <value value="1"/>
+              <value value="0"/>
             </properties>
           </component>
           <component id="a3afa" class="javax.swing.JSlider" binding="slider4" default-binding="true">
@@ -145,10 +137,10 @@
             <properties>
               <majorTickSpacing value="1"/>
               <maximum value="5"/>
-              <minimum value="1"/>
+              <minimum value="0"/>
               <paintLabels value="true"/>
               <paintTicks value="true"/>
-              <value value="1"/>
+              <value value="0"/>
             </properties>
           </component>
           <component id="58b26" class="javax.swing.JSlider" binding="slider5" default-binding="true">
@@ -158,12 +150,12 @@
             <properties>
               <majorTickSpacing value="1"/>
               <maximum value="5"/>
-              <minimum value="1"/>
+              <minimum value="0"/>
               <paintLabels value="true"/>
               <paintTicks value="true"/>
               <paintTrack value="true"/>
               <requestFocusEnabled value="true"/>
-              <value value="1"/>
+              <value value="0"/>
               <visible value="true"/>
             </properties>
           </component>
@@ -174,10 +166,10 @@
             <properties>
               <majorTickSpacing value="1"/>
               <maximum value="5"/>
-              <minimum value="1"/>
+              <minimum value="0"/>
               <paintLabels value="true"/>
               <paintTicks value="true"/>
-              <value value="1"/>
+              <value value="0"/>
             </properties>
           </component>
           <component id="2720f" class="javax.swing.JTextField" binding="textField3" default-binding="true">
@@ -219,14 +211,14 @@
             <properties>
               <majorTickSpacing value="1"/>
               <maximum value="5"/>
-              <minimum value="1"/>
+              <minimum value="0"/>
               <minorTickSpacing value="0"/>
               <paintLabels value="true"/>
               <paintTicks value="true"/>
-              <value value="1"/>
+              <value value="0"/>
             </properties>
           </component>
-          <component id="b2f7a" class="javax.swing.JLabel">
+          <component id="b2f7a" class="javax.swing.JLabel" binding="nomeLabel">
             <constraints>
               <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
@@ -234,12 +226,28 @@
               <text value="           Nome:"/>
             </properties>
           </component>
-          <component id="1fdea" class="javax.swing.JLabel">
+          <component id="1fdea" class="javax.swing.JLabel" binding="IDLabel">
             <constraints>
               <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value="                                          ID:"/>
+            </properties>
+          </component>
+          <component id="6bbcd" class="javax.swing.JButton" binding="confermaButton" default-binding="true">
+            <constraints>
+              <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Conferma"/>
+            </properties>
+          </component>
+          <component id="ffbd7" class="javax.swing.JButton" binding="backButton" default-binding="true">
+            <constraints>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Back"/>
             </properties>
           </component>
         </children>

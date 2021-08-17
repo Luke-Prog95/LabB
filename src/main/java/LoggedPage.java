@@ -1,7 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.rmi.RemoteException;
+import java.sql.*;
 import javax.swing.*;
 
 public class LoggedPage extends JFrame {
@@ -26,9 +30,13 @@ public class LoggedPage extends JFrame {
     private JTextField textField4;
     private JTextField textField5;
     private JTextField textField6;
+    private JButton backButton;
+    private JLabel nomeLabel;
+    private JLabel IDLabel;
 
-    public LoggedPage() {
+    public LoggedPage(String utente, String id) throws SQLException {
         frame3 = new JFrame("Login");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
         frame3.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame3.setPreferredSize(new Dimension(550, 450));
         frame3.setResizable(false);
@@ -48,6 +56,37 @@ public class LoggedPage extends JFrame {
         slider4.setEnabled(false);
         slider5.setEnabled(false);
         slider6.setEnabled(false);
+        String qcercanome = "SELECT Nome,Cognome FROM Cittadini_Registrati WHERE Username = '"+utente+"'";
+        PreparedStatement stm = con.prepareStatement(qcercanome);
+        ResultSet rs = stm.executeQuery();
+        if (rs.next())
+             nomeLabel.setText("Nome: "+rs.getString("Nome")+" "+rs.getString("Cognome"));
+        IDLabel.setText("ID: "+id);
+
+        String[] ident = IDLabel.getText().split(" ");
+
+        PreparedStatement stm2 = con.prepareStatement("SELECT identita FROM Sintomi WHERE identita = '"+id+"'");
+        ResultSet rs2 = stm2.executeQuery();
+        if(rs2.next()){
+            String query2 = "SELECT Testa,Febbre,Dolori,Linfo,Tachicardia,Crisi FROM Sintomi WHERE identita = '"+id+"'";
+            PreparedStatement stm3 = con.prepareStatement(query2);
+            ResultSet rs4 = stm3.executeQuery();
+            if(rs4.next()){
+                slider1.setValue(rs4.getInt("Testa"));
+                slider2.setValue(rs4.getInt("Febbre"));
+                slider3.setValue(rs4.getInt("Dolori"));
+                slider4.setValue(rs4.getInt("Linfo"));
+                slider5.setValue(rs4.getInt("Tachicardia"));
+                slider6.setValue(rs4.getInt("Crisi"));
+            }
+        }else {
+            slider1.setValue(0);
+            slider2.setValue(0);
+            slider3.setValue(0);
+            slider4.setValue(0);
+            slider5.setValue(0);
+            slider6.setValue(0);
+        }
 
         malDiTestaCheckBox.addItemListener(new ItemListener() {
             @Override
@@ -124,6 +163,33 @@ public class LoggedPage extends JFrame {
                     slider6.setEnabled(false);
                     textField6.setEditable(false);
                 };
+            }
+        });
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame3.setVisible(false);
+                try {
+                    new LoginPage();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+
+        confermaButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    serverCV s = new serverCV();
+                    String[] ident = IDLabel.getText().split(" ");
+                    s.inserisciEventiAvversi(Integer.parseInt(ident[1]),slider1.getValue(),slider2.getValue(),slider3.getValue(),slider4.getValue(),slider5.getValue(),slider6.getValue());
+                    JOptionPane.showMessageDialog(confermaButton, "Report inviato");
+                } catch (RemoteException | SQLException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
     }
