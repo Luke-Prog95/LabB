@@ -64,7 +64,7 @@ public class LoginPage extends JFrame {
                     } else {
                         String pas = rs.getString("Pass");
                         if (pas.equals(p)) {
-                            PreparedStatement stm1 = con.prepareStatement("SELECT idvac FROM Cittadini_Registrati WHERE Username ='"+user+"'");
+                            PreparedStatement stm1 = con.prepareStatement("SELECT Idvac FROM Cittadini_Registrati WHERE Username ='"+user+"'");
                             ResultSet rs1 = stm1.executeQuery();
                             if(rs1.next() && (rs1.getString(1)!=null)) {
                                 JOptionPane.showMessageDialog(logInButton, "Sei Loggato!");

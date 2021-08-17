@@ -33,7 +33,7 @@ public class SearchPage extends JFrame {
         DefaultListModel<String> l = new DefaultListModel<String>();
         try {
             Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
-            PreparedStatement stm = con.prepareStatement("SELECT Nome,Indirizzo_Unico FROM CentriVaccinali");
+            PreparedStatement stm = con.prepareStatement("SELECT Nome,Indirizzo FROM CentriVaccinali");
             ResultSet rs = stm.executeQuery();
             while(rs.next()){
                 l.addElement(rs.getString(1)+" ("+rs.getString(2)+")");

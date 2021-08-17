@@ -36,19 +36,23 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         System.out.print("Tipo: ");
         String t = scan.next();
         String indirizzo = q+" "+v+" "+nc+" "+c+" "+p+" "+cap;
-        PreparedStatement stmt = con.prepareStatement("INSERT INTO CentriVaccinali (Nome,Indirizzo_Unico,Tipologia,Identificatore,Nome_Via,Num_Civico,Comune,CAP,Provincia) VALUES (?,?,?,?,?,?,?,?,?)");
+        PreparedStatement stmt = con.prepareStatement("INSERT INTO CentriVaccinali (Nome,Indirizzo,Tipologia,Comune) VALUES (?,?,?,?)");
         stmt.setString(1,n);
         stmt.setString(2,indirizzo);
         stmt.setString(3,t);
-        stmt.setString(4,q);
-        stmt.setString(5,v);
-        stmt.setString(6,nc);
-        stmt.setString(7,c);
-        stmt.setInt(8,cap);
-        stmt.setString(9,p);
+        stmt.setString(4,c);
         stmt.executeUpdate();
         String nTab = "Vaccinati_"+n;
-        String query = "CREATE TABLE "+nTab+"(Nome VARCHAR(100), Cittadino VARCHAR(256), Codice_Fiscale VARCHAR(16), Data_prima_dose VARCHAR(100), Vaccino VARCHAR(100), Identificativo VARCHAR(100))";
+        String query = "CREATE TABLE "+nTab+"(NomeCentro VARCHAR(100),  \n" +
+                "                                 Cittadino VARCHAR(100),\n" +
+                "                                 CodiceFiscale VARCHAR(16),\n" +
+                "                                 Data_Prima_dose VARCHAR(10), \n" +
+                "                                 Vaccino VARCHAR(100), \n" +
+                "                                 Identificativo NUMERIC(4), \n" +
+                "                                 PRIMARY KEY (NomeCentro),\n" +
+                "\t                               FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale),\n" +
+                "                                 FOREIGN KEY (Identificativo) REFERENCES Sintomi(Identità),\n" +
+                "                                 FOREIGN KEY (NomeCentro) REFERENCES CentriVaccinali(Nome)) \n";
         System.out.println(nTab);
         PreparedStatement stmt2 = con.prepareStatement(query);
         stmt2.execute();
@@ -69,9 +73,9 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             System.out.print("Vaccino somministrato (Pfizer, AstraZeneca, Moderna, J&J): ");
             String vac = scan.next();
             System.out.print("ID: ");
-            String id = scan.next();
+            int id = scan.nextInt();
             String nTab = "Vaccinati_"+n;
-            String query = "UPDATE "+ nTab + " SET Data_prima_dose='"+data+"', Vaccino='"+vac+"', Identificativo=1 WHERE Codice_Fiscale='"+cf+"'";
+            String query = "UPDATE "+ nTab + " SET Data_Prima_Dose='"+data+"', Vaccino='"+vac+"', Identificativo="+id+" WHERE CodiceFiscale='"+cf+"'";
             PreparedStatement stmt = con.prepareStatement(query);
             stmt.executeUpdate();
     }
@@ -80,7 +84,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     @Override
     public DefaultListModel<String> cercaCentroVaccinale(String centro) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
-        String query = "SELECT Nome,Indirizzo_Unico FROM CentriVaccinali WHERE Nome LIKE '"+centro+"%'";
+        String query = "SELECT Nome,Indirizzo FROM CentriVaccinali WHERE Nome LIKE '"+"'%"+centro+"%'";
         PreparedStatement stm = con.prepareStatement(query);
         ResultSet rs = stm.executeQuery();
         DefaultListModel<String> l = new DefaultListModel<String>();
@@ -93,7 +97,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     @Override
     public DefaultListModel<String> cercaCentroVaccinale(String comune, String tipo) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
-        String query = "SELECT Nome,Indirizzo_Unico FROM CentriVaccinali WHERE Tipologia = '"+tipo+"' AND Comune='"+comune+"'";
+        String query = "SELECT Nome,Indirizzo FROM CentriVaccinali WHERE Tipologia = '"+tipo+"' AND Comune='"+comune+"'";
         PreparedStatement stm = con.prepareStatement(query);
         ResultSet rs = stm.executeQuery();
         DefaultListModel<String> l = new DefaultListModel<String>();
@@ -107,7 +111,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     public String visualizzaInfoCentroVaccinale(String nome) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
         String risultato = "Nome centro: "+nome+"\nIndirizzo: ";
-        PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo_Unico FROM CentriVaccinali WHERE Nome = '"+nome+"'");
+        PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo FROM CentriVaccinali WHERE Nome = '"+nome+"'");
         ResultSet rs2 = stm2.executeQuery();
         if(rs2.next())
          risultato += rs2.getString(1)+"\n\nEventi avversi:\n\n" +
@@ -124,7 +128,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     @Override
     public Boolean inserisciEventiAvversi(int id,int malt, int febbre, int dolori, int linfo, int tachi, int crisi) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
-        PreparedStatement stm2 = con.prepareStatement("SELECT identita FROM Sintomi WHERE identita = '"+id+"'");
+        PreparedStatement stm2 = con.prepareStatement("SELECT Identità FROM Sintomi WHERE Identità = '"+id+"'");
         ResultSet rs2 = stm2.executeQuery();
         if(rs2.next()){
             String query2 = "UPDATE Sintomi SET Testa = "+malt+" ,Febbre = "+febbre+" ,Dolori = "+dolori+" ,Linfo = "+linfo+" ,Tachicardia = "+tachi+" ,Crisi = "+crisi+" WHERE Identita = "+id;
@@ -206,7 +210,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     public ResultSet logCittadino(String user) throws RemoteException, SQLException {
             //try {
                 Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
-                PreparedStatement stmt = con.prepareStatement("SELECT Username,Pass FROM Cittadini_Registrati WHERE username = ?");
+                PreparedStatement stmt = con.prepareStatement("SELECT Username,Pass FROM Cittadini_Registrati WHERE Username = ?");
                 stmt.setString(1, user);
                 ResultSet rs = stmt.executeQuery();
                 return rs;
@@ -217,7 +221,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     @Override
     public ResultSet registraCittadino(String n,String c,String cf, String em, String u,String p, String nCen) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres","admin");
-        PreparedStatement stmt = con.prepareStatement("SELECT username FROM Cittadini_Registrati WHERE Username = ?");
+        PreparedStatement stmt = con.prepareStatement("SELECT Username FROM Cittadini_Registrati WHERE Username = ?");
         stmt.setString(1,u);
         ResultSet rs = stmt.executeQuery();
         if(rs.next() == false){
@@ -230,14 +234,14 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             stmt2.setString(5, u);
             stmt2.setString(6, p);
             stmt2.executeUpdate();
+            String query1 = "INSERT INTO Vaccinati_"+nCen+" (NomeCentro, Cittadino, CodiceFiscale) VALUES (?,?,?)";
+            String utente = n+" "+c;
+            PreparedStatement stmt3 = con.prepareStatement(query1);
+            stmt3.setString(1, nCen);
+            stmt3.setString(2, utente);
+            stmt3.setString(3, cf);
+            stmt3.executeUpdate();
         }
-        String query1 = "INSERT INTO Vaccinati_"+nCen+" (Nome, Cittadino, Codice_Fiscale) VALUES (?,?,?)";
-        String utente = n+" "+c;
-        PreparedStatement stmt3 = con.prepareStatement(query1);
-        stmt3.setString(1, nCen);
-        stmt3.setString(2, utente);
-        stmt3.setString(3, cf);
-        stmt3.executeUpdate();
         return rs;
     }
 }

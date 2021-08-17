@@ -65,10 +65,10 @@ public class LoggedPage extends JFrame {
 
         String[] ident = IDLabel.getText().split(" ");
 
-        PreparedStatement stm2 = con.prepareStatement("SELECT identita FROM Sintomi WHERE identita = '"+id+"'");
+        PreparedStatement stm2 = con.prepareStatement("SELECT Identità FROM Sintomi WHERE Identità = '"+id+"'");
         ResultSet rs2 = stm2.executeQuery();
         if(rs2.next()){
-            String query2 = "SELECT Testa,Febbre,Dolori,Linfo,Tachicardia,Crisi FROM Sintomi WHERE identita = '"+id+"'";
+            String query2 = "SELECT Testa,Febbre,Dolori,Linfo,Tachicardia,Crisi FROM Sintomi WHERE Identità = '"+id+"'";
             PreparedStatement stm3 = con.prepareStatement(query2);
             ResultSet rs4 = stm3.executeQuery();
             if(rs4.next()){
