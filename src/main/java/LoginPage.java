@@ -35,7 +35,7 @@ public class LoginPage extends JFrame {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "qwerty");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
 
         signInButton.addActionListener(new ActionListener() {
             @Override
@@ -79,7 +79,25 @@ public class LoginPage extends JFrame {
                         }
                     }
                 } /*catch (SQLException ex){
-                    ex.getSQLState();
+                    if (ex.getSQLState().equals("42P01")) {
+                        String createCitReg = "CREATE TABLE \"Cittadini_Registrati\" (\n" +
+                                "\tnome varchar(20),\n" +
+                                "\tcognome varchar(20),\n" +
+                                "\tcodicefiscale varchar(20),\n" +
+                                "\temail varchar(100),\n" +
+                                "\tusername varchar(20) primary key,\n" +
+                                "\tpass varchar(20),\n" +
+                                "\tidvac numeric\n" +
+                                ")";
+                        PreparedStatement stm = null;
+                        try {
+                            stm = con.prepareStatement(createCitReg);
+                            stm.executeUpdate();
+                        } catch (SQLException ex1) {
+                            ex1.printStackTrace();
+                        }
+                        System.out.println("Tabella creata");
+                    }
                 } */catch (Exception throwables) {
                     throwables.printStackTrace();
                 }

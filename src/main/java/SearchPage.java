@@ -32,7 +32,7 @@ public class SearchPage extends JFrame {
         lista.setVisibleRowCount(8);
         DefaultListModel<String> l = new DefaultListModel<String>();
         try {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "qwerty");
+            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
             PreparedStatement stm = con.prepareStatement("SELECT Nome,Indirizzo FROM CentriVaccinali");
             ResultSet rs = stm.executeQuery();
             while(rs.next()){
@@ -82,7 +82,7 @@ public class SearchPage extends JFrame {
                     serverCV s = new serverCV();
                     String[] valore = lista.getSelectedValue().toString().split(" \\(");
                     String nome = valore[0];
-                    System.out.println(valore[0]+valore[1]);
+                    System.out.println(valore[0]+" ("+valore[1]);
                     textArea1.setText(s.visualizzaInfoCentroVaccinale(nome));
                 } catch (RemoteException | SQLException ex) {
                     ex.printStackTrace();

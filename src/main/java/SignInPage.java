@@ -30,7 +30,7 @@ public class SignInPage extends JFrame {
         frame1.setLocationRelativeTo(null);
         frame1.setVisible(true);
 
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "qwerty");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         PreparedStatement stm = con.prepareStatement("SELECT Nome FROM CentriVaccinali");
         PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo FROM CentriVaccinali");
         ResultSet rs = stm.executeQuery();

@@ -36,7 +36,7 @@ public class LoggedPage extends JFrame {
 
     public LoggedPage(String utente, String id) throws SQLException {
         frame3 = new JFrame("Login");
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "qwerty");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         frame3.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame3.setPreferredSize(new Dimension(550, 450));
         frame3.setResizable(false);
