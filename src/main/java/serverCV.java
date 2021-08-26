@@ -55,11 +55,21 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                 "                                 Vaccino VARCHAR(100), \n" +
                 "                                 Identificativo NUMERIC(4), \n" +
                 "                                 PRIMARY KEY (NomeCentro),\n" +
-                "\t                               FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale),\n" +
+                "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale),\n" +
                 "                                 FOREIGN KEY (NomeCentro) REFERENCES CentriVaccinali(Nome)) \n";
+        String query1 = "CREATE TABLE Sintomi_"+n+"(NomeCentro VARCHAR(100),  \n" + // Creare una tabella per ogni centro vaccinale
+                "                                 Testa NUMERIC(1),\n" +            // con i sintomi dei vaccinati = più facile accedervi e mantenere anonimato
+                "                                 Febbre NUMERIC(1),\n" +
+                "                                 Dolori NUMERIC(1), \n" +
+                "                                 Linfo NUMERIC(1), \n" +
+                "                                 Tachicardia NUMERIC(1), \n" +
+                "                                 Crisi NUMERIC(1), \n" +
+                "                                 FOREIGN KEY (NomeCentro) REFERENCES CentriVaccinali(Nome)); \n";
         System.out.println(nTab);
         PreparedStatement stmt2 = con.prepareStatement(query);
         stmt2.execute();
+        PreparedStatement stmt3 = con.prepareStatement(query1);
+        stmt3.execute();
         System.out.println("Centro vaccinale registrato");
     }
 
@@ -120,14 +130,21 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         String risultato = "Nome centro: "+nome+"\nIndirizzo: ";
         PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo FROM CentriVaccinali WHERE Nome = '"+nome+"'");
         ResultSet rs2 = stm2.executeQuery();
-        if(rs2.next())
-         risultato += rs2.getString(1)+"\n\nEventi avversi:\n\n" +
-                 "Mal di testa          -->   Numero segnalazioni:        Severità media:\n" +
-                 "Febbre                 -->   Numero segnalazioni:        Severità media:\n" +
-                 "Dolori muscolari  -->   Numero segnalazioni:        Severità media:\n" +
-                 "Linfoadenopatia   -->   Numero segnalazioni:        Severità media:\n" +
-                 "Tachicardia          -->   Numero segnalazioni:        Severità media:\n" +
-                 "Crisi ipertensiva   -->   Numero segnalazioni:        Severità media:";
+        String querySintomi = "select avg(testa), avg(febbre), avg(dolori), avg(linfo), avg(tachicardia), avg(crisi) \n" +
+                "FROM sintomi_zxc ";
+        PreparedStatement stm3 = con.prepareStatement(querySintomi);
+        ResultSet rs3 = stm3.executeQuery();
+        if(rs2.next()){
+            if(rs3.next()) {
+                risultato += rs2.getString(1) + "\n\nEventi avversi:\n\n" +
+                        "Mal di testa \t   -->   Numero segnalazioni:        Severità media: " + rs3.getInt(1) +
+                        "\nFebbre \t   -->   Numero segnalazioni:        Severità media: " + rs3.getInt(2) +
+                        "\nDolori muscolari  -->   Numero segnalazioni:        Severità media: " + rs3.getInt(3) +
+                        "\nLinfoadenopatia   -->   Numero segnalazioni:        Severità media: " + rs3.getInt(4) +
+                        "\nTachicardia \t   -->   Numero segnalazioni:        Severità media: " + rs3.getInt(5) +
+                        "\nCrisi ipertensiva  -->   Numero segnalazioni:        Severità media: " +rs3.getInt(6) ;
+            }
+        }
         return risultato;
     }
 
@@ -212,7 +229,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                         "\temail varchar(100),\n" +
                         "\tusername varchar(20),\n" +
                         "\tpass varchar(20),\n" +
-                        "\tidvac numeric\n" +
+                        "\tidvac numeric\n" +  //Numero dato direttamente dal database??
                         ")";
                 PreparedStatement stm = con.prepareStatement(createDB);
                 stm.execute();

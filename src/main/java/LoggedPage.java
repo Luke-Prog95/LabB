@@ -65,7 +65,7 @@ public class LoggedPage extends JFrame {
 
         String[] ident = IDLabel.getText().split(" ");
 
-        PreparedStatement stm2 = con.prepareStatement("SELECT Identità FROM Sintomi WHERE Identità = '"+id+"'");
+        /*PreparedStatement stm2 = con.prepareStatement("SELECT Identità FROM Sintomi WHERE Identità = '"+id+"'");
         ResultSet rs2 = stm2.executeQuery();
         if(rs2.next()){
             String query2 = "SELECT Testa,Febbre,Dolori,Linfo,Tachicardia,Crisi FROM Sintomi WHERE Identità = '"+id+"'";
@@ -86,7 +86,7 @@ public class LoggedPage extends JFrame {
             slider4.setValue(0);
             slider5.setValue(0);
             slider6.setValue(0);
-        }
+        }*/
 
         malDiTestaCheckBox.addItemListener(new ItemListener() {
             @Override
