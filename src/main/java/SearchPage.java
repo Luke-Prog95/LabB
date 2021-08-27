@@ -42,7 +42,8 @@ public class SearchPage extends JFrame {
             ex.printStackTrace();
         }
         lista.setModel(l);
-        lista.setSelectedIndex(0);
+        //lista.setSelectedIndex(0);
+
 
             backButton.addMouseListener(new MouseAdapter() {
                 @Override
@@ -62,8 +63,11 @@ public class SearchPage extends JFrame {
                     serverCV s = null;
                     try {
                         s = new serverCV();
-                        if (nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
+                        if (nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty()){
                             JOptionPane.showMessageDialog(cercaButton, "Nessun criterio inserito");
+                            lista.setModel(l);
+                            //lista.setSelectedIndex(0);
+                        }
                         else if (!nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
                             lista.setModel(s.cercaCentroVaccinale(nomeText.getText().trim()));
                         else if (nomeText.getText().trim().isEmpty() && !comuneText.getText().trim().isEmpty() && !tipoText.getText().trim().isEmpty())
@@ -80,7 +84,7 @@ public class SearchPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     serverCV s = new serverCV();
-                    String[] valore = lista.getSelectedValue().toString().split(" \\(");
+                    String[] valore = lista.getSelectedValue().toString().split("\\s\\(");
                     String nome = valore[0];
                     System.out.println(valore[0]+" ("+valore[1]);
                     textArea1.setText(s.visualizzaInfoCentroVaccinale(nome));

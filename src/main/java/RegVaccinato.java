@@ -17,8 +17,8 @@ public class RegVaccinato extends JFrame{
     private JTextField data;
     private JComboBox centriVacc;
     private JComboBox vaccini;
-    private JButton exit;
     private JButton conferma;
+    private JCheckBox secondaDose;
     private JFrame frame;
     private Scanner scan;
     private String[] vaxList = {"Pfizer", "AstraZeneca", "Moderna", "J&J"};
@@ -32,7 +32,7 @@ public class RegVaccinato extends JFrame{
             System.out.println("Client err:"+m.getMessage());}
         scan = new Scanner(System.in);
         frame = new JFrame("Registra Vaccinato");
-        frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         frame.setPreferredSize(new Dimension(500,450));
         frame.setResizable(false);
         frame.add(panel1);
@@ -58,7 +58,7 @@ public class RegVaccinato extends JFrame{
             vaccini.addItem(vaxList[i]);
         }
 
-        conferma.addActionListener(new ActionListener() {
+        conferma.addActionListener(new ActionListener() {  //`ToDo inserire codice lotto vaccino
             @Override
             public void actionPerformed(ActionEvent e) {
                 String codf = cf.getText();
@@ -66,17 +66,26 @@ public class RegVaccinato extends JFrame{
                 try {
                     PreparedStatement ps = con.prepareStatement("SELECT * FROM cittadini_registrati WHERE codicefiscale ='"+codf+"'");
                     ResultSet rs = ps.executeQuery();
-                    if(rs.next()){
+                    if (!rs.next())
+                        JOptionPane.showMessageDialog(conferma,"Codice fiscale non trovato!");
+                    else {
                         String centro = (String) centriVacc.getSelectedItem();
                         String d = data.getText();
                         String vac = (String) vaccini.getSelectedItem();
-                        PreparedStatement ps1 = con.prepareStatement("UPDATE Vaccinati_"+centro+" SET Data_Prima_Dose='"+d+"', Vaccino='"+vac+"' WHERE CodiceFiscale='"+codf+"'");
-                        ps1.executeUpdate();
+                        if (secondaDose.isSelected()){
+                            PreparedStatement ps1 = con.prepareStatement("UPDATE \"Vaccinati_" + centro + "\" SET Data_Seconda_Dose='" + d + "' WHERE CodiceFiscale='" + codf + "'");
+                            ps1.executeUpdate();
+                        } else {
+                            PreparedStatement ps2 = con.prepareStatement("UPDATE \"Vaccinati_" + centro + "\" SET Data_Prima_Dose='" + d + "', vaccino='" + vac + "' WHERE CodiceFiscale='" + codf + "'");
+                            ps2.executeUpdate();
+                        }
+                        frame.setVisible(false);
+                        frame.dispose();
                     }
                 } catch (SQLException throwables) {
+                    System.out.println(throwables.getSQLState());
                     throwables.printStackTrace();
                 }
-
             }
         });
     }

@@ -6,13 +6,11 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class serverCV extends UnicastRemoteObject implements serverCVInterface {
 
-    private static Scanner scan = new Scanner(System.in);
+    private static Scanner scan = new Scanner(System.in).useDelimiter("\\n"); //Aggiunto altrimenti con lo spazio saltava al prossimo scan
 
     public serverCV() throws RemoteException {
     }
@@ -47,25 +45,23 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         stmt.setInt(8,cap);
         stmt.setString(9,p);
         stmt.executeUpdate();
-        String nTab = "Vaccinati_"+n;
-        String query = "CREATE TABLE "+nTab+"(NomeCentro VARCHAR(100),  \n" +
-                "                                 Cittadino VARCHAR(100),\n" +
+        String query = "CREATE TABLE \"Vaccinati_"+n+"\"(Cittadino VARCHAR(100),\n" +
                 "                                 CodiceFiscale VARCHAR(16),\n" +
                 "                                 Data_Prima_dose VARCHAR(10), \n" +
+                "                                 Data_Seconda_dose VARCHAR(10), \n" +
                 "                                 Vaccino VARCHAR(100), \n" +
-                "                                 Identificativo NUMERIC(4), \n" +
-                "                                 PRIMARY KEY (NomeCentro),\n" +
-                "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale),\n" +
-                "                                 FOREIGN KEY (NomeCentro) REFERENCES CentriVaccinali(Nome)) \n";
-        String query1 = "CREATE TABLE Sintomi_"+n+"(NomeCentro VARCHAR(100),  \n" + // Creare una tabella per ogni centro vaccinale
-                "                                 Testa NUMERIC(1),\n" +            // con i sintomi dei vaccinati = più facile accedervi e mantenere anonimato
+                "                                 IdentificativoPrimaD NUMERIC(10), \n" +
+                "                                 IdentificativoSecondaD NUMERIC(10), \n" +
+                "                                 PRIMARY KEY (CodiceFiscale),\n" +
+                "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale));\n";
+        String query1 = "CREATE TABLE \"Sintomi_"+n+"\"(CodiceFiscale VARCHAR(16),  \n" + // Creare una tabella per ogni centro vaccinale
+                "                                 Testa NUMERIC(1),\n" +  // con i sintomi dei vaccinati = più facile accedervi e mantenere anonimato
                 "                                 Febbre NUMERIC(1),\n" +
                 "                                 Dolori NUMERIC(1), \n" +
                 "                                 Linfo NUMERIC(1), \n" +
                 "                                 Tachicardia NUMERIC(1), \n" +
                 "                                 Crisi NUMERIC(1), \n" +
-                "                                 FOREIGN KEY (NomeCentro) REFERENCES CentriVaccinali(Nome)); \n";
-        System.out.println(nTab);
+                "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale)); \n"; //idvac
         PreparedStatement stmt2 = con.prepareStatement(query);
         stmt2.execute();
         PreparedStatement stmt3 = con.prepareStatement(query1);
@@ -101,7 +97,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     @Override
     public DefaultListModel<String> cercaCentroVaccinale(String centro) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
-        String query = "SELECT Nome,Indirizzo FROM CentriVaccinali WHERE Nome LIKE '"+"'%"+centro+"%'";
+        String query = "SELECT Nome,Indirizzo FROM CentriVaccinali WHERE Nome LIKE '%"+centro+"%'";
         PreparedStatement stm = con.prepareStatement(query);
         ResultSet rs = stm.executeQuery();
         DefaultListModel<String> l = new DefaultListModel<String>();
@@ -130,19 +126,20 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         String risultato = "Nome centro: "+nome+"\nIndirizzo: ";
         PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo FROM CentriVaccinali WHERE Nome = '"+nome+"'");
         ResultSet rs2 = stm2.executeQuery();
-        String querySintomi = "select avg(testa), avg(febbre), avg(dolori), avg(linfo), avg(tachicardia), avg(crisi) \n" +
-                "FROM sintomi_zxc ";
+        String querySintomi = "select avg(testa), avg(febbre), avg(dolori), avg(linfo), avg(tachicardia), avg(crisi), " +
+                "count (nullif (testa,0)), count (nullif (febbre,0)), count (nullif (dolori,0)), count (nullif (linfo,0)), count (nullif (tachicardia,0)), count (nullif (crisi,0))" +
+                "FROM \"Sintomi_" + nome + "\"";
         PreparedStatement stm3 = con.prepareStatement(querySintomi);
         ResultSet rs3 = stm3.executeQuery();
         if(rs2.next()){
             if(rs3.next()) {
                 risultato += rs2.getString(1) + "\n\nEventi avversi:\n\n" +
-                        "Mal di testa \t   -->   Numero segnalazioni:        Severità media: " + rs3.getInt(1) +
-                        "\nFebbre \t   -->   Numero segnalazioni:        Severità media: " + rs3.getInt(2) +
-                        "\nDolori muscolari  -->   Numero segnalazioni:        Severità media: " + rs3.getInt(3) +
-                        "\nLinfoadenopatia   -->   Numero segnalazioni:        Severità media: " + rs3.getInt(4) +
-                        "\nTachicardia \t   -->   Numero segnalazioni:        Severità media: " + rs3.getInt(5) +
-                        "\nCrisi ipertensiva  -->   Numero segnalazioni:        Severità media: " +rs3.getInt(6) ;
+                        "Mal di testa \t   -->   Numero segnalazioni: " + rs3.getInt(7) + "\tSeverità media: " + rs3.getFloat(1) +
+                        "\nFebbre \t   -->   Numero segnalazioni: " + rs3.getInt(8) + "\tSeverità media: " + rs3.getFloat(2) +
+                        "\nDolori muscolari  -->   Numero segnalazioni: " + rs3.getInt(9) + "\tSeverità media: " + rs3.getFloat(3) +
+                        "\nLinfoadenopatia   -->   Numero segnalazioni: " + rs3.getInt(10) + "\tSeverità media: " + rs3.getFloat(4) +
+                        "\nTachicardia \t   -->   Numero segnalazioni: " + rs3.getInt(11) + "\tSeverità media: " + rs3.getFloat(5) +
+                        "\nCrisi ipertensiva  -->   Numero segnalazioni: " + rs3.getInt(12) + "\tSeverità media: " +rs3.getFloat(6) ;
             }
         }
         return risultato;
@@ -229,7 +226,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                         "\temail varchar(100),\n" +
                         "\tusername varchar(20),\n" +
                         "\tpass varchar(20),\n" +
-                        "\tidvac numeric\n" +  //Numero dato direttamente dal database??
+                        "\tidvac serial\n" +  //Serial così il db incrementa in automatico
                         ")";
                 PreparedStatement stm = con.prepareStatement(createDB);
                 stm.execute();
@@ -284,12 +281,11 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             stmt2.setString(5, u);
             stmt2.setString(6, p);
             stmt2.executeUpdate();
-            String query1 = "INSERT INTO Vaccinati_"+nCen+" (NomeCentro, Cittadino, CodiceFiscale) VALUES (?,?,?)";
+            String query1 = "INSERT INTO \"Vaccinati_"+nCen+"\" (Cittadino, CodiceFiscale) VALUES (?,?)";
             String utente = n+" "+c;
             PreparedStatement stmt3 = con.prepareStatement(query1);
-            stmt3.setString(1, nCen);
-            stmt3.setString(2, utente);
-            stmt3.setString(3, cf);
+            stmt3.setString(1, utente);
+            stmt3.setString(2, cf);
             stmt3.executeUpdate();
         }
         return rs;
