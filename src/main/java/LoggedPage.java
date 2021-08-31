@@ -6,6 +6,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.rmi.RemoteException;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import javax.swing.*;
 
 public class LoggedPage extends JFrame {
@@ -33,9 +37,11 @@ public class LoggedPage extends JFrame {
     private JButton backButton;
     private JLabel nomeLabel;
     private JLabel IDLabel;
+    private String centroVac;
+    private String codf;
 
-    public LoggedPage(String utente, String id) throws SQLException {
-        frame3 = new JFrame("Login");
+    public LoggedPage(String utente, String id) throws SQLException, ParseException {
+        frame3 = new JFrame("Form");
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         frame3.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame3.setPreferredSize(new Dimension(550, 450));
@@ -56,14 +62,44 @@ public class LoggedPage extends JFrame {
         slider4.setEnabled(false);
         slider5.setEnabled(false);
         slider6.setEnabled(false);
-        String qcercanome = "SELECT Nome,Cognome,codicefiscale FROM Cittadini_Registrati WHERE Username = '"+utente+"'";
+        String qcercanome = "SELECT Nome,Cognome,codicefiscale,centro FROM Cittadini_Registrati WHERE Username = '"+utente+"'";
         PreparedStatement stm = con.prepareStatement(qcercanome);
         ResultSet rs = stm.executeQuery();
         if (rs.next()) {
             nomeLabel.setText("Nome: " + rs.getString("Nome") + " " + rs.getString("Cognome"));
-            String codf = rs.getString("codicefiscale");
+            codf = rs.getString("codicefiscale");
+            centroVac = rs.getString("centro");
         }
         IDLabel.setText("ID: "+id);
+        PreparedStatement stm1 = con.prepareStatement("SELECT data_prima_dose, data_seconda_dose FROM \"Vaccinati_"+centroVac+"\" WHERE codicefiscale='"+codf+"'");
+        ResultSet rs1 = stm1.executeQuery();
+        //ToDo Sistemare
+        if (rs1.next()){
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            Calendar cal = Calendar.getInstance();
+            Date today = cal.getTime();
+            Date vac;
+            System.out.println(rs1.getString("data_prima_dose"));
+            System.out.println(rs1.getString("data_seconda_dose"));
+            if(rs1.getString("data_prima_dose").equals("null")) {
+                frame3.setVisible(false);
+                JOptionPane.showMessageDialog(confermaButton, "Non hai ancora effettuato una vaccinazione!");
+            } else {
+                if (rs1.getString("data_seconda_dose").equals("null")) {
+                    vac = sdf.parse(rs1.getString("data_prima_dose"));
+                } else {
+                    vac = sdf.parse(rs1.getString("data_seconda_dose"));
+                }
+                int giorniPassati = (int)(today.getTime() - vac.getTime()) / (1000*60*60*24);
+                if (giorniPassati>14) {
+                    frame3.setVisible(false);
+                    JOptionPane.showMessageDialog(confermaButton, "Passati più di 14 giorni per compilare il form!");
+                } else {
+                    frame3.setVisible(true);
+                }
+            }
+        }
+
 
         //String[] ident = IDLabel.getText().split(" ");
 
