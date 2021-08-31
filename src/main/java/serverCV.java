@@ -126,7 +126,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         String risultato = "Nome centro: "+nome+"\nIndirizzo: ";
         PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo FROM CentriVaccinali WHERE Nome = '"+nome+"'");
         ResultSet rs2 = stm2.executeQuery();
-        String querySintomi = "select avg(testa), avg(febbre), avg(dolori), avg(linfo), avg(tachicardia), avg(crisi), " +
+        String querySintomi = "select avg(nullif (testa,0)), avg(nullif (febbre,0)), avg(nullif (dolori,0)), avg(nullif (linfo,0)), avg(nullif (tachicardia,0)), avg(nullif (crisi,0)), " +
                 "count (nullif (testa,0)), count (nullif (febbre,0)), count (nullif (dolori,0)), count (nullif (linfo,0)), count (nullif (tachicardia,0)), count (nullif (crisi,0))" +
                 "FROM \"Sintomi_" + nome + "\"";
         PreparedStatement stm3 = con.prepareStatement(querySintomi);
@@ -149,8 +149,10 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     @Override
     public Boolean inserisciEventiAvversi(int id,int malt, int febbre, int dolori, int linfo, int tachi, int crisi) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
-        PreparedStatement stm2 = con.prepareStatement("SELECT Identità FROM Sintomi WHERE Identità = '"+id+"'");
+        PreparedStatement stm2 = con.prepareStatement("SELECT codicefiscale FROM cittadini_registrati WHERE idvac="+id);
         ResultSet rs2 = stm2.executeQuery();
+        rs2.next();
+        String codf = rs2.getString(1);
         if(rs2.next()){
             String query2 = "UPDATE Sintomi SET Testa = "+malt+" ,Febbre = "+febbre+" ,Dolori = "+dolori+" ,Linfo = "+linfo+" ,Tachicardia = "+tachi+" ,Crisi = "+crisi+" WHERE Identita = "+id;
             PreparedStatement stm3 = con.prepareStatement(query2);
@@ -158,7 +160,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         }else {
             String query = "INSERT INTO Sintomi VALUES (?,?,?,?,?,?,?)";
             PreparedStatement stm = con.prepareStatement(query);
-            stm.setInt(1, id);
+            stm.setString(1, codf);
             stm.setInt(2, malt);
             stm.setInt(3, febbre);
             stm.setInt(4, dolori);
@@ -168,6 +170,60 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             stm.executeUpdate();
         }
         return true;
+    }
+
+    @Override
+    public ResultSet logCittadino(String user) throws RemoteException, SQLException {
+            //try {
+                Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
+                PreparedStatement stmt = con.prepareStatement("SELECT Username,Pass FROM Cittadini_Registrati WHERE Username = ?");
+                stmt.setString(1, user);
+                ResultSet rs = stmt.executeQuery();
+                //System.out.println("Client connesso: "+user);     print sul server come notifica
+                return rs;
+            /*} catch (PSQLException ex) {
+                if (ex.getSQLState().equals("42P01")) {
+                    Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
+                    String createCitReg = "CREATE TABLE \"Cittadini_Registrati\" (\n" +
+                            "\tnome varchar(20),\n" +
+                            "\tcognome varchar(20),\n" +
+                            "\tcodicefiscale varchar(20),\n" +
+                            "\temail varchar(100),\n" +
+                            "\tusername varchar(20) primary key,\n" +
+                            "\tpass varchar(20),\n" +
+                            "\tidvac serial\n" +
+                            ")";
+                    PreparedStatement stm = stm = con.prepareStatement(createCitReg);
+                    stm.executeUpdate();
+                }
+                return logCittadino(user);
+            }*/
+    }
+
+    @Override
+    public ResultSet registraCittadino(String n,String c,String cf, String em, String u,String p, String nCen) throws RemoteException, SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres","postgres");
+        PreparedStatement stmt = con.prepareStatement("SELECT Username FROM Cittadini_Registrati WHERE Username = ?");
+        stmt.setString(1,u);
+        ResultSet rs = stmt.executeQuery();
+        if(rs.next() == false){
+            String query = "INSERT INTO Cittadini_Registrati (Nome,Cognome,CodiceFiscale,Email,Username,Pass) VALUES (?,?,?,?,?,?)";
+            PreparedStatement stmt2 = con.prepareStatement(query);
+            stmt2.setString(1, n);
+            stmt2.setString(2, c);
+            stmt2.setString(3, cf);
+            stmt2.setString(4, em);
+            stmt2.setString(5, u);
+            stmt2.setString(6, p);
+            stmt2.executeUpdate();
+            String query1 = "INSERT INTO \"Vaccinati_"+nCen+"\" (Cittadino, CodiceFiscale) VALUES (?,?)";
+            String utente = n+" "+c;
+            PreparedStatement stmt3 = con.prepareStatement(query1);
+            stmt3.setString(1, utente);
+            stmt3.setString(2, cf);
+            stmt3.executeUpdate();
+        }
+        return rs;
     }
 
     public static void main(String[] args) throws SQLException, RemoteException {
@@ -236,58 +292,5 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             }
             else { ex.printStackTrace(); }
         } catch (Exception e) {e.printStackTrace();}
-    }
-
-    @Override
-    public ResultSet logCittadino(String user) throws RemoteException, SQLException {
-            //try {
-                Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
-                PreparedStatement stmt = con.prepareStatement("SELECT Username,Pass FROM Cittadini_Registrati WHERE Username = ?");
-                stmt.setString(1, user);
-                ResultSet rs = stmt.executeQuery();
-                return rs;
-            /*} catch (PSQLException ex) {
-                if (ex.getSQLState().equals("42P01")) {
-                    Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
-                    String createCitReg = "CREATE TABLE \"Cittadini_Registrati\" (\n" +
-                            "\tnome varchar(20),\n" +
-                            "\tcognome varchar(20),\n" +
-                            "\tcodicefiscale varchar(20),\n" +
-                            "\temail varchar(100),\n" +
-                            "\tusername varchar(20) primary key,\n" +
-                            "\tpass varchar(20),\n" +
-                            "\tidvac numeric\n" +
-                            ")";
-                    PreparedStatement stm = stm = con.prepareStatement(createCitReg);
-                    stm.executeUpdate();
-                }
-                return logCittadino(user);
-            }*/
-    }
-
-    @Override
-    public ResultSet registraCittadino(String n,String c,String cf, String em, String u,String p, String nCen) throws RemoteException, SQLException {
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres","postgres");
-        PreparedStatement stmt = con.prepareStatement("SELECT Username FROM Cittadini_Registrati WHERE Username = ?");
-        stmt.setString(1,u);
-        ResultSet rs = stmt.executeQuery();
-        if(rs.next() == false){
-            String query = "INSERT INTO Cittadini_Registrati (Nome,Cognome,CodiceFiscale,Email,Username,Pass) VALUES (?,?,?,?,?,?)";
-            PreparedStatement stmt2 = con.prepareStatement(query);
-            stmt2.setString(1, n);
-            stmt2.setString(2, c);
-            stmt2.setString(3, cf);
-            stmt2.setString(4, em);
-            stmt2.setString(5, u);
-            stmt2.setString(6, p);
-            stmt2.executeUpdate();
-            String query1 = "INSERT INTO \"Vaccinati_"+nCen+"\" (Cittadino, CodiceFiscale) VALUES (?,?)";
-            String utente = n+" "+c;
-            PreparedStatement stmt3 = con.prepareStatement(query1);
-            stmt3.setString(1, utente);
-            stmt3.setString(2, cf);
-            stmt3.executeUpdate();
-        }
-        return rs;
     }
 }

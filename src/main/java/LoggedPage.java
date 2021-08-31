@@ -56,14 +56,16 @@ public class LoggedPage extends JFrame {
         slider4.setEnabled(false);
         slider5.setEnabled(false);
         slider6.setEnabled(false);
-        String qcercanome = "SELECT Nome,Cognome FROM Cittadini_Registrati WHERE Username = '"+utente+"'";
+        String qcercanome = "SELECT Nome,Cognome,codicefiscale FROM Cittadini_Registrati WHERE Username = '"+utente+"'";
         PreparedStatement stm = con.prepareStatement(qcercanome);
         ResultSet rs = stm.executeQuery();
-        if (rs.next())
-             nomeLabel.setText("Nome: "+rs.getString("Nome")+" "+rs.getString("Cognome"));
+        if (rs.next()) {
+            nomeLabel.setText("Nome: " + rs.getString("Nome") + " " + rs.getString("Cognome"));
+            String codf = rs.getString("codicefiscale");
+        }
         IDLabel.setText("ID: "+id);
 
-        String[] ident = IDLabel.getText().split(" ");
+        //String[] ident = IDLabel.getText().split(" ");
 
         /*PreparedStatement stm2 = con.prepareStatement("SELECT Identità FROM Sintomi WHERE Identità = '"+id+"'");
         ResultSet rs2 = stm2.executeQuery();
@@ -184,8 +186,8 @@ public class LoggedPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     serverCV s = new serverCV();
-                    String[] ident = IDLabel.getText().split(" ");
-                    s.inserisciEventiAvversi(Integer.parseInt(ident[1]),slider1.getValue(),slider2.getValue(),slider3.getValue(),slider4.getValue(),slider5.getValue(),slider6.getValue());
+                    String ident = IDLabel.getText();
+                    s.inserisciEventiAvversi(Integer.parseInt(ident),slider1.getValue(),slider2.getValue(),slider3.getValue(),slider4.getValue(),slider5.getValue(),slider6.getValue());
                     JOptionPane.showMessageDialog(confermaButton, "Report inviato");
                 } catch (RemoteException | SQLException ex) {
                     ex.printStackTrace();

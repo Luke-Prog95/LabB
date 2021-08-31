@@ -66,7 +66,6 @@ public class SearchPage extends JFrame {
                         if (nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty()){
                             JOptionPane.showMessageDialog(cercaButton, "Nessun criterio inserito");
                             lista.setModel(l);
-                            //lista.setSelectedIndex(0);
                         }
                         else if (!nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
                             lista.setModel(s.cercaCentroVaccinale(nomeText.getText().trim()));

@@ -70,8 +70,7 @@ public class LoginPage extends JFrame {
                                 JOptionPane.showMessageDialog(logInButton, "Sei Loggato!");
                                 frame.setVisible(false);
                                 new LoggedPage(user,Integer.toString(rs1.getInt(1)));
-                                System.out.println(rs1.getInt(1));
-                            } else {
+                            } else {  //ToDo cambiare ui dopo il log
                                 JOptionPane.showMessageDialog(logInButton, "Utente: "+user+"\nNon hai ancora effettuato il vaccino!\nNon è possibile compilare il report!");
                             }
                         } else {
