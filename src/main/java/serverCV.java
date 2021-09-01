@@ -287,11 +287,24 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                         "\tidvac serial,\n" +
                         "\tcentro varchar(100)\n" +  //Serial così il db incrementa in automatico
                         ")";
+                String createCentri = "create table CentriVaccinali (\n" +
+                        "\tnome varchar(100) primary key,\n" +
+                        "\tindirizzo varchar(256),\n" +
+                        "\ttipologia varchar(100),\n" +
+                        "\tidentificatore varchar(100),\n" +
+                        "\tnome_via varchar(100),\n" +
+                        "\tnum_civico varchar(10),\n" +
+                        "\tcomune varchar(100),\n" +
+                        "\tcap numeric(5),\n" +
+                        "\tprovincia varchar(2)\n" +
+                        ")";
                 PreparedStatement stm = con.prepareStatement(createDB);
                 stm.execute();
                 con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
                 Statement stm1 = con.createStatement();
                 stm1.executeUpdate(createCitReg);
+                Statement stm2 = con.createStatement();
+                stm2.executeUpdate(createCentri);
                 serverCV.main(args);
             }
             else { ex.printStackTrace(); }
