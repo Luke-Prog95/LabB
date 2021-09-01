@@ -59,7 +59,7 @@ public class RegVaccinato extends JFrame{
             vaccini.addItem(vaxList[i]);
         }
 
-        conferma.addActionListener(new ActionListener() {  //`ToDo inserire codice lotto vaccino
+        conferma.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String codf = cf.getText();

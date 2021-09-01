@@ -151,24 +151,28 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         PreparedStatement stm2 = con.prepareStatement("SELECT codicefiscale FROM cittadini_registrati WHERE idvac="+id);
         ResultSet rs2 = stm2.executeQuery();
-        if(rs2.next()){
+        if(rs2.next()) {
             String codf = rs2.getString(1);
-            String query2 = "UPDATE \"Sintomi_"+centro+"\" SET Testa = "+malt+" ,Febbre = "+febbre+" ,Dolori = "+dolori+" ," +
-                    "Linfo = "+linfo+" ,Tachicardia = "+tachi+" ,Crisi = "+crisi+" WHERE codicefiscale = '"+codf+"'";
-            PreparedStatement stm3 = con.prepareStatement(query2);
-            stm3.executeUpdate();
-        } else {
-            String codf = rs2.getString(1);
-            String query = "INSERT INTO \"Sintomi_"+centro+"\" VALUES (?,?,?,?,?,?,?)";
-            PreparedStatement stm = con.prepareStatement(query);
-            stm.setString(1, codf);
-            stm.setInt(2, malt);
-            stm.setInt(3, febbre);
-            stm.setInt(4, dolori);
-            stm.setInt(5, linfo);
-            stm.setInt(6, tachi);
-            stm.setInt(7, crisi);
-            stm.executeUpdate();
+            String query1 = "SELECT codicefiscale FROM \"Sintomi_" + centro + "\"";
+            stm2 = con.prepareStatement(query1);
+            ResultSet rs3 = stm2.executeQuery();
+            if (rs3.next()) {
+                String query2 = "UPDATE \"Sintomi_" + centro + "\" SET Testa = " + malt + " ,Febbre = " + febbre + " ,Dolori = " + dolori + " ," +
+                        "Linfo = " + linfo + " ,Tachicardia = " + tachi + " ,Crisi = " + crisi + " WHERE codicefiscale = '" + codf + "'";
+                PreparedStatement stm3 = con.prepareStatement(query2);
+                stm3.executeUpdate();
+            } else {
+                String query = "INSERT INTO \"Sintomi_" + centro + "\" VALUES (?,?,?,?,?,?,?)";
+                PreparedStatement stm = con.prepareStatement(query);
+                stm.setString(1, codf);
+                stm.setInt(2, malt);
+                stm.setInt(3, febbre);
+                stm.setInt(4, dolori);
+                stm.setInt(5, linfo);
+                stm.setInt(6, tachi);
+                stm.setInt(7, crisi);
+                stm.executeUpdate();
+            }
         }
         return true;
     }
@@ -228,6 +232,10 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return rs;
     }
 
+    public void connection(String usr, String pwd) throws SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", usr, pwd);
+    }
+
     public static void main(String[] args) throws SQLException, RemoteException {
         /*System.out.print("Inserire user database: ");
         String userdb = scan.next();
@@ -269,7 +277,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             if(ex.getSQLState().equals("3D000")){
                 System.out.println("Database non esistente\n\nCreazione Database");
                 Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", "postgres", "postgres");
-                String createDB = "CREATE DATABASE \"LabC\"\n" +
+                String createDB = "CREATE DATABASE \"LabB\"\n" +
                         "\tWITH \n" +
                         "\tOWNER = postgres\n" +
                         "\tENCODING = 'UTF8'\n" +
