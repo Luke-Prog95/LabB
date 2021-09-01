@@ -21,7 +21,7 @@ public class SignInPage extends JFrame {
     private ArrayList<String> l;
 
     public SignInPage() throws SQLException {
-        frame1 = new JFrame("SignIn");
+        frame1 = new JFrame("SignUp");
         frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame1.setPreferredSize(new Dimension(500,450));
         frame1.setResizable(false);
@@ -56,7 +56,7 @@ public class SignInPage extends JFrame {
                     String cf = CodF.getText();
                     String em = Email.getText();
                     String cen = (String) comboBox1.getSelectedItem();
-                    String[] nomeC = cen.split(" ");
+                    String[] nomeC = cen.split(" \\(");
                     serverCV sv = new serverCV();
                     ResultSet rs = sv.registraCittadino(n,c,cf,em,user,p,nomeC[0]);
                     if(user.trim().equals("") || p.trim().equals("") || n.trim().equals("")  || c.trim().equals("") || cf.trim().equals("") || em.trim().equals(""))

@@ -79,52 +79,47 @@ public class LoggedPage extends JFrame {
             Calendar cal = Calendar.getInstance();
             Date today = cal.getTime();
             Date vac;
-            System.out.println(rs1.getString("data_prima_dose"));
-            System.out.println(rs1.getString("data_seconda_dose"));
-            if(rs1.getString("data_prima_dose").equals("null")) {
+            //System.out.println(rs1.getString("data_prima_dose"));
+            //System.out.println(rs1.getString("data_seconda_dose"));
+            if(rs1.getString("data_prima_dose") == null) {
                 frame3.setVisible(false);
                 JOptionPane.showMessageDialog(confermaButton, "Non hai ancora effettuato una vaccinazione!");
+                new LoginPage();
             } else {
-                if (rs1.getString("data_seconda_dose").equals("null")) {
+                if (rs1.getString("data_seconda_dose") == null) {
                     vac = sdf.parse(rs1.getString("data_prima_dose"));
                 } else {
                     vac = sdf.parse(rs1.getString("data_seconda_dose"));
                 }
-                int giorniPassati = (int)(today.getTime() - vac.getTime()) / (1000*60*60*24);
+                long giorniPassati = (today.getTime() - vac.getTime()) / (1000*60*60*24);
                 if (giorniPassati>14) {
                     frame3.setVisible(false);
                     JOptionPane.showMessageDialog(confermaButton, "Passati più di 14 giorni per compilare il form!");
+                    new LoginPage();
                 } else {
                     frame3.setVisible(true);
                 }
             }
         }
 
-
-        //String[] ident = IDLabel.getText().split(" ");
-
-        /*PreparedStatement stm2 = con.prepareStatement("SELECT Identità FROM Sintomi WHERE Identità = '"+id+"'");
-        ResultSet rs2 = stm2.executeQuery();
-        if(rs2.next()){
-            String query2 = "SELECT Testa,Febbre,Dolori,Linfo,Tachicardia,Crisi FROM Sintomi WHERE Identità = '"+id+"'";
-            PreparedStatement stm3 = con.prepareStatement(query2);
-            ResultSet rs4 = stm3.executeQuery();
-            if(rs4.next()){
-                slider1.setValue(rs4.getInt("Testa"));
-                slider2.setValue(rs4.getInt("Febbre"));
-                slider3.setValue(rs4.getInt("Dolori"));
-                slider4.setValue(rs4.getInt("Linfo"));
-                slider5.setValue(rs4.getInt("Tachicardia"));
-                slider6.setValue(rs4.getInt("Crisi"));
-            }
-        }else {
+        String query2 = "SELECT Testa,Febbre,Dolori,Linfo,Tachicardia,Crisi FROM \"Sintomi_"+centroVac+"\" WHERE codicefiscale = '"+codf+"'";
+        PreparedStatement stm3 = con.prepareStatement(query2);
+        ResultSet rs4 = stm3.executeQuery();
+        if(rs4.next()){
+            slider1.setValue(rs4.getInt("Testa"));
+            slider2.setValue(rs4.getInt("Febbre"));
+            slider3.setValue(rs4.getInt("Dolori"));
+            slider4.setValue(rs4.getInt("Linfo"));
+            slider5.setValue(rs4.getInt("Tachicardia"));
+            slider6.setValue(rs4.getInt("Crisi"));
+        } else {
             slider1.setValue(0);
             slider2.setValue(0);
             slider3.setValue(0);
             slider4.setValue(0);
             slider5.setValue(0);
             slider6.setValue(0);
-        }*/
+        }
 
         malDiTestaCheckBox.addItemListener(new ItemListener() {
             @Override
@@ -222,8 +217,10 @@ public class LoggedPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     serverCV s = new serverCV();
-                    String ident = IDLabel.getText();
-                    s.inserisciEventiAvversi(Integer.parseInt(ident),slider1.getValue(),slider2.getValue(),slider3.getValue(),slider4.getValue(),slider5.getValue(),slider6.getValue());
+                    String label = IDLabel.getText();
+                    String[] ident = label.split(" ");
+                    s.inserisciEventiAvversi(Integer.parseInt(ident[1]),slider1.getValue(),slider2.getValue(),slider3.getValue(),
+                            slider4.getValue(),slider5.getValue(),slider6.getValue(), centroVac);
                     JOptionPane.showMessageDialog(confermaButton, "Report inviato");
                 } catch (RemoteException | SQLException ex) {
                     ex.printStackTrace();

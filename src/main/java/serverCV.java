@@ -147,18 +147,19 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
 
 
     @Override
-    public Boolean inserisciEventiAvversi(int id,int malt, int febbre, int dolori, int linfo, int tachi, int crisi) throws RemoteException, SQLException {
+    public Boolean inserisciEventiAvversi(int id,int malt, int febbre, int dolori, int linfo, int tachi, int crisi, String centro) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         PreparedStatement stm2 = con.prepareStatement("SELECT codicefiscale FROM cittadini_registrati WHERE idvac="+id);
         ResultSet rs2 = stm2.executeQuery();
-        rs2.next();
-        String codf = rs2.getString(1);
         if(rs2.next()){
-            String query2 = "UPDATE Sintomi SET Testa = "+malt+" ,Febbre = "+febbre+" ,Dolori = "+dolori+" ,Linfo = "+linfo+" ,Tachicardia = "+tachi+" ,Crisi = "+crisi+" WHERE Identita = "+id;
+            String codf = rs2.getString(1);
+            String query2 = "UPDATE \"Sintomi_"+centro+"\" SET Testa = "+malt+" ,Febbre = "+febbre+" ,Dolori = "+dolori+" ," +
+                    "Linfo = "+linfo+" ,Tachicardia = "+tachi+" ,Crisi = "+crisi+" WHERE codicefiscale = '"+codf+"'";
             PreparedStatement stm3 = con.prepareStatement(query2);
             stm3.executeUpdate();
-        }else {
-            String query = "INSERT INTO Sintomi VALUES (?,?,?,?,?,?,?)";
+        } else {
+            String codf = rs2.getString(1);
+            String query = "INSERT INTO \"Sintomi_"+centro+"\" VALUES (?,?,?,?,?,?,?)";
             PreparedStatement stm = con.prepareStatement(query);
             stm.setString(1, codf);
             stm.setInt(2, malt);
@@ -207,7 +208,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         stmt.setString(1,u);
         ResultSet rs = stmt.executeQuery();
         if(rs.next() == false){
-            String query = "INSERT INTO Cittadini_Registrati (Nome,Cognome,CodiceFiscale,Email,Username,Pass) VALUES (?,?,?,?,?,?)";
+            String query = "INSERT INTO Cittadini_Registrati (Nome,Cognome,CodiceFiscale,Email,Username,Pass, centro) VALUES (?,?,?,?,?,?,?)";
             PreparedStatement stmt2 = con.prepareStatement(query);
             stmt2.setString(1, n);
             stmt2.setString(2, c);
@@ -215,6 +216,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             stmt2.setString(4, em);
             stmt2.setString(5, u);
             stmt2.setString(6, p);
+            stmt2.setString(7, nCen);
             stmt2.executeUpdate();
             String query1 = "INSERT INTO \"Vaccinati_"+nCen+"\" (Cittadino, CodiceFiscale) VALUES (?,?)";
             String utente = n+" "+c;
@@ -267,7 +269,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             if(ex.getSQLState().equals("3D000")){
                 System.out.println("Database non esistente\n\nCreazione Database");
                 Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", "postgres", "postgres");
-                String createDB = "CREATE DATABASE \"LabB\"\n" +
+                String createDB = "CREATE DATABASE \"LabC\"\n" +
                         "\tWITH \n" +
                         "\tOWNER = postgres\n" +
                         "\tENCODING = 'UTF8'\n" +
@@ -275,19 +277,21 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                         "\tLC_CTYPE = 'Italian_Italy.1252'\n" +
                         "\tTABLESPACE = pg_default\n" +
                         "\tCONNECTION LIMIT = -1;\n";
-                String createCitReg = "CREATE TABLE \"Cittadini_Registrati\" (\n" +
+                String createCitReg = "CREATE TABLE cittadini_registrati (\n" +
                         "\tnome varchar(20),\n" +
                         "\tcognome varchar(20),\n" +
                         "\tcodicefiscale varchar(20) primary key,\n" +
                         "\temail varchar(100),\n" +
                         "\tusername varchar(20),\n" +
                         "\tpass varchar(20),\n" +
-                        "\tidvac serial\n" +  //Serial così il db incrementa in automatico
+                        "\tidvac serial,\n" +
+                        "\tcentro varchar(100)\n" +  //Serial così il db incrementa in automatico
                         ")";
                 PreparedStatement stm = con.prepareStatement(createDB);
                 stm.execute();
-                /*stm = con.prepareStatement(createCitReg);
-                stm.execute();*/
+                con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
+                Statement stm1 = con.createStatement();
+                stm1.executeUpdate(createCitReg);
                 serverCV.main(args);
             }
             else { ex.printStackTrace(); }
