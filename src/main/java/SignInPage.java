@@ -30,7 +30,7 @@ public class SignInPage extends JFrame {
         frame1.setLocationRelativeTo(null);
         frame1.setVisible(true);
 
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         PreparedStatement stm = con.prepareStatement("SELECT Nome FROM CentriVaccinali");
         PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo FROM CentriVaccinali");
         ResultSet rs = stm.executeQuery();
@@ -59,20 +59,25 @@ public class SignInPage extends JFrame {
                     String[] nomeC = cen.split(" \\(");
                     serverCV sv = new serverCV();
                     ResultSet rs = sv.registraCittadino(n,c,cf,em,user,p,nomeC[0]);
-                    if(user.trim().equals("") || p.trim().equals("") || n.trim().equals("")  || c.trim().equals("") || cf.trim().equals("") || em.trim().equals(""))
-                    {JOptionPane.showMessageDialog(signInButton,"uno dei campi è vuoto!");}
-                    else if(rs.next() == false){
+                    if(user.trim().equals("") || p.trim().equals("") || n.trim().equals("")  || c.trim().equals("") || cf.trim().equals("") || em.trim().equals("")) {
+                        JOptionPane.showMessageDialog(signInButton,"Uno dei campi è vuoto!", "Errore!", JOptionPane.ERROR_MESSAGE);
+                    } else if(cf.trim().length()!=16){
+                        JOptionPane.showMessageDialog(signInButton,"Codice fiscale errato", "Errore!", JOptionPane.ERROR_MESSAGE);
+                    } else if(rs.next() == false){
                         JOptionPane.showMessageDialog(signInButton,"Utente Registrato!");
                         frame1.setVisible(false);
                         new LoginPage();
                     }
                     else{
-                        JOptionPane.showMessageDialog(signInButton,"Nome utente già esistente!");}
+                        JOptionPane.showMessageDialog(signInButton,"Errore nella registrazione!", "Errore!", JOptionPane.ERROR_MESSAGE);}
                 } catch (SQLException | RemoteException throwables) {
                     throwables.printStackTrace();
+                } catch (java.lang.NullPointerException ex) {
+                    JOptionPane.showMessageDialog(signInButton,"Username già utilizzato!", "Errore!", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
+
         button1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

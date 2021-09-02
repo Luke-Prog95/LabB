@@ -16,7 +16,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     }
 
     public void registraCentroVaccinale(String nome, String comune, String qualif, String numCiv, String prov, String via, String tipo, int cap) throws RemoteException, SQLException {
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         String indirizzo = qualif+" "+via+" "+numCiv+" "+comune+" "+"("+prov+")"+" "+cap;
         PreparedStatement stmt = con.prepareStatement("INSERT INTO CentriVaccinali (Nome,Indirizzo,Tipologia,Identificatore,Nome_via,Num_civico,Comune,Cap,Provincia) VALUES (?,?,?,?,?,?,?,?,?)");
         stmt.setString(1,nome);
@@ -34,18 +34,22 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                 "                                 Data_Prima_dose VARCHAR(10), \n" +
                 "                                 Data_Seconda_dose VARCHAR(10), \n" +
                 "                                 Vaccino VARCHAR(100), \n" +
-                "                                 IdentificativoPrimaD NUMERIC(10), \n" +
-                "                                 IdentificativoSecondaD NUMERIC(10), \n" +
                 "                                 PRIMARY KEY (CodiceFiscale),\n" +
                 "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale));\n";
-        String query1 = "CREATE TABLE \"Sintomi_"+nome+"\"(CodiceFiscale VARCHAR(16),  \n" + // Creare una tabella per ogni centro vaccinale
-                "                                 Testa NUMERIC(1),\n" +  // con i sintomi dei vaccinati = più facile accedervi e mantenere anonimato
+        String query1 = "CREATE TABLE \"Sintomi_"+nome+"\"(CodiceFiscale VARCHAR(16),  \n" +
+                "                                 Testa NUMERIC(1),\n" +
                 "                                 Febbre NUMERIC(1),\n" +
                 "                                 Dolori NUMERIC(1), \n" +
                 "                                 Linfo NUMERIC(1), \n" +
                 "                                 Tachicardia NUMERIC(1), \n" +
                 "                                 Crisi NUMERIC(1), \n" +
-                "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale)); \n"; //idvac
+                "                                 TestaNote VARCHAR(256), \n" +
+                "                                 FebbreNote VARCHAR(256), \n" +
+                "                                 DoloriNote VARCHAR(256), \n" +
+                "                                 LinfoNote VARCHAR(256), \n" +
+                "                                 TachiNote VARCHAR(256), \n" +
+                "                                 CrisiNote VARCHAR(256), \n" +
+                "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale)); \n";
         PreparedStatement stmt2 = con.prepareStatement(query);
         stmt2.execute();
         PreparedStatement stmt3 = con.prepareStatement(query1);
@@ -60,7 +64,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
 
     @Override
     public DefaultListModel<String> cercaCentroVaccinale(String centro) throws RemoteException, SQLException {
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         String query = "SELECT Nome,Indirizzo FROM CentriVaccinali WHERE Nome LIKE '%"+centro+"%'";
         PreparedStatement stm = con.prepareStatement(query);
         ResultSet rs = stm.executeQuery();
@@ -73,7 +77,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
 
     @Override
     public DefaultListModel<String> cercaCentroVaccinale(String comune, String tipo) throws RemoteException, SQLException {
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         String query = "SELECT Nome,Indirizzo FROM CentriVaccinali WHERE Tipologia = '"+tipo+"' AND Comune='"+comune+"'";
         PreparedStatement stm = con.prepareStatement(query);
         ResultSet rs = stm.executeQuery();
@@ -86,7 +90,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
 
     @Override
     public String visualizzaInfoCentroVaccinale(String nome) throws RemoteException, SQLException {
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         String risultato = "Nome centro: "+nome+"\nIndirizzo: ";
         PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo FROM CentriVaccinali WHERE Nome = '"+nome+"'");
         ResultSet rs2 = stm2.executeQuery();
@@ -112,7 +116,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
 
     @Override
     public Boolean inserisciEventiAvversi(int id,int malt, int febbre, int dolori, int linfo, int tachi, int crisi, String centro) throws RemoteException, SQLException {
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         PreparedStatement stm2 = con.prepareStatement("SELECT codicefiscale FROM cittadini_registrati WHERE idvac="+id);
         ResultSet rs2 = stm2.executeQuery();
         if(rs2.next()) {
@@ -143,35 +147,16 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
 
     @Override
     public ResultSet logCittadino(String user) throws RemoteException, SQLException {
-            //try {
-                Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
-                PreparedStatement stmt = con.prepareStatement("SELECT Username,Pass FROM Cittadini_Registrati WHERE Username = ?");
-                stmt.setString(1, user);
-                ResultSet rs = stmt.executeQuery();
-                //System.out.println("Client connesso: "+user);     print sul server come notifica
-                return rs;
-            /*} catch (PSQLException ex) {
-                if (ex.getSQLState().equals("42P01")) {
-                    Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
-                    String createCitReg = "CREATE TABLE \"Cittadini_Registrati\" (\n" +
-                            "\tnome varchar(20),\n" +
-                            "\tcognome varchar(20),\n" +
-                            "\tcodicefiscale varchar(20),\n" +
-                            "\temail varchar(100),\n" +
-                            "\tusername varchar(20) primary key,\n" +
-                            "\tpass varchar(20),\n" +
-                            "\tidvac serial\n" +
-                            ")";
-                    PreparedStatement stm = stm = con.prepareStatement(createCitReg);
-                    stm.executeUpdate();
-                }
-                return logCittadino(user);
-            }*/
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
+        PreparedStatement stmt = con.prepareStatement("SELECT Username,Pass FROM Cittadini_Registrati WHERE Username = ?");
+        stmt.setString(1, user);
+        ResultSet rs = stmt.executeQuery();
+        return rs;
     }
 
     @Override
     public ResultSet registraCittadino(String n,String c,String cf, String em, String u,String p, String nCen) throws RemoteException, SQLException {
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres","admin");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres","postgres");
         PreparedStatement stmt = con.prepareStatement("SELECT Username FROM Cittadini_Registrati WHERE Username = ?");
         stmt.setString(1,u);
         ResultSet rs = stmt.executeQuery();
@@ -192,8 +177,9 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             stmt3.setString(1, utente);
             stmt3.setString(2, cf);
             stmt3.executeUpdate();
-        }
-        return rs;
+            return rs;
+        } else
+            return null;
     }
 
     public void connection(String usr, String pwd) throws SQLException {
@@ -208,7 +194,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         System.out.print("Inserire host database: ");
         String hostdb = scan.next();*/
         try {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
             System.out.println("\nServer connesso al database");
             Thread.sleep(1000);
             System.out.println("\n... Tentativo di connessione al registry ...");
@@ -216,11 +202,16 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             serverCV s = new serverCV();
             Registry registro = LocateRegistry.createRegistry(1099);
             registro.bind("serverCV",s);
-            System.out.println("\nServer ready in attesa di client");
+            System.out.println("\nServer ready in attesa di client\n");
+            while(true){
+                System.out.println("Per uscire inserire \"exit\"");
+                String cmd = scan.next().toLowerCase();
+                if(cmd.equals("exit")) System.exit(1);
+            }
         } catch (PSQLException ex) {
             if(ex.getSQLState().equals("3D000")){
                 System.out.println("Database non esistente\n\nCreazione Database");
-                Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", "postgres", "admin");
+                Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", "postgres", "postgres");
                 String createDB = "CREATE DATABASE \"LabB\"\n" +
                         "\tWITH \n" +
                         "\tOWNER = postgres\n" +
@@ -252,7 +243,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                         ")";
                 PreparedStatement stm = con.prepareStatement(createDB);
                 stm.execute();
-                con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+                con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
                 Statement stm1 = con.createStatement();
                 stm1.executeUpdate(createCitReg);
                 Statement stm2 = con.createStatement();

@@ -21,11 +21,6 @@ public class LoginPage extends JFrame {
     private serverCVInterface server;
 
     public LoginPage() throws SQLException {
-        try {
-            Registry reg = LocateRegistry.getRegistry();
-            server = (serverCVInterface) reg.lookup("serverCV");
-        }  catch (Exception m) {
-            System.out.println("Client err:"+m.getMessage());}
         scan = new Scanner(System.in);
         frame = new JFrame("Login");
         frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -35,7 +30,7 @@ public class LoginPage extends JFrame {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
 
         signInButton.addActionListener(new ActionListener() {
             @Override

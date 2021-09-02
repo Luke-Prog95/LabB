@@ -32,7 +32,7 @@ public class SearchPage extends JFrame {
         lista.setVisibleRowCount(8);
         DefaultListModel<String> l = new DefaultListModel<String>();
         try {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
+            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
             PreparedStatement stm = con.prepareStatement("SELECT Nome,Indirizzo FROM CentriVaccinali");
             ResultSet rs = stm.executeQuery();
             while(rs.next()){
@@ -42,41 +42,39 @@ public class SearchPage extends JFrame {
             ex.printStackTrace();
         }
         lista.setModel(l);
-        //lista.setSelectedIndex(0);
 
-
-            backButton.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    frame.setVisible(false);
-                    try {
-                        new LoginPage();
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                    }
+        backButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                frame.setVisible(false);
+                try {
+                    new LoginPage();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
                 }
-            });
+            }
+        });
 
-            cercaButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    serverCV s = null;
-                    try {
-                        s = new serverCV();
-                        if (nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty()){
-                            JOptionPane.showMessageDialog(cercaButton, "Nessun criterio inserito");
-                            lista.setModel(l);
-                        }
-                        else if (!nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
-                            lista.setModel(s.cercaCentroVaccinale(nomeText.getText().trim()));
-                        else if (nomeText.getText().trim().isEmpty() && !comuneText.getText().trim().isEmpty() && !tipoText.getText().trim().isEmpty())
-                            lista.setModel(s.cercaCentroVaccinale(comuneText.getText().trim(), tipoText.getText().trim()));
-                        else JOptionPane.showMessageDialog(cercaButton, "Criteri non adatti");
-                    } catch (RemoteException | SQLException ex) {
-                        ex.printStackTrace();
+        cercaButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                serverCV s = null;
+                try {
+                    s = new serverCV();
+                    if (nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty()){
+                        JOptionPane.showMessageDialog(cercaButton, "Nessun criterio inserito");
+                        lista.setModel(l);
                     }
+                    else if (!nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
+                        lista.setModel(s.cercaCentroVaccinale(nomeText.getText().trim()));
+                    else if (nomeText.getText().trim().isEmpty() && !comuneText.getText().trim().isEmpty() && !tipoText.getText().trim().isEmpty())
+                        lista.setModel(s.cercaCentroVaccinale(comuneText.getText().trim(), tipoText.getText().trim()));
+                    else JOptionPane.showMessageDialog(cercaButton, "Criteri non adatti");
+                } catch (RemoteException | SQLException ex) {
+                    ex.printStackTrace();
                 }
-            });
+            }
+        });
 
         infoButton.addActionListener(new ActionListener() {
             @Override
@@ -85,7 +83,6 @@ public class SearchPage extends JFrame {
                     serverCV s = new serverCV();
                     String[] valore = lista.getSelectedValue().toString().split("\\s\\(");
                     String nome = valore[0];
-                    System.out.println(valore[0]+" ("+valore[1]);
                     textArea1.setText(s.visualizzaInfoCentroVaccinale(nome));
                 } catch (RemoteException | SQLException ex) {
                     ex.printStackTrace();
