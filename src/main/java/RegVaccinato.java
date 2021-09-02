@@ -40,7 +40,7 @@ public class RegVaccinato extends JFrame{
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frame.setAlwaysOnTop(true);
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
         try {
             PreparedStatement stm = con.prepareStatement("SELECT Nome FROM CentriVaccinali");
             ResultSet rs = stm.executeQuery();

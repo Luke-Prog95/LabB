@@ -32,7 +32,7 @@ public class SearchPage extends JFrame {
         lista.setVisibleRowCount(8);
         DefaultListModel<String> l = new DefaultListModel<String>();
         try {
-            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
+            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "admin");
             PreparedStatement stm = con.prepareStatement("SELECT Nome,Indirizzo FROM CentriVaccinali");
             ResultSet rs = stm.executeQuery();
             while(rs.next()){

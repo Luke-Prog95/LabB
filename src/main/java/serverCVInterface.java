@@ -12,4 +12,6 @@ public interface serverCVInterface extends Remote {
     public ResultSet logCittadino(String u) throws RemoteException, SQLException;
     public ResultSet registraCittadino(String n,String c,String cf, String em, String u,String p, String nCen)  throws RemoteException, SQLException;
     public Boolean inserisciEventiAvversi(int id,int malt, int febbre, int dolori, int linfo, int tachi, int crisi, String centro) throws RemoteException, SQLException;
+    public void registraVaccinato() throws RemoteException, SQLException;
+    public void registraCentroVaccinale(String nome, String comune, String qualif, String numCiv, String prov, String via, String tipo, int cap) throws RemoteException, SQLException;
 }
