@@ -1,3 +1,7 @@
+package cittadini;
+
+import serverCV.serverCV;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -48,8 +52,8 @@ public class SearchPage extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 frame.setVisible(false);
                 try {
-                    new LoginPage();
-                } catch (SQLException ex) {
+                    new utenteCV();
+                } catch (SQLException | RemoteException ex) {
                     ex.printStackTrace();
                 }
             }
@@ -79,8 +83,9 @@ public class SearchPage extends JFrame {
         infoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                serverCV s = null;
                 try {
-                    serverCV s = new serverCV();
+                    s = new serverCV();
                     String[] valore = lista.getSelectedValue().toString().split("\\s\\(");
                     String nome = valore[0];
                     textArea1.setText(s.visualizzaInfoCentroVaccinale(nome));
@@ -89,10 +94,6 @@ public class SearchPage extends JFrame {
                 }
             }
         });
-    }
-
-    public static void main(String[] args) {
-        new SearchPage();
     }
 
 }

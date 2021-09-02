@@ -1,3 +1,6 @@
+package serverCV;
+
+import centrivaccinali.RegVaccinato;
 import org.postgresql.util.PSQLException;
 
 import javax.swing.*;
@@ -57,8 +60,16 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         System.out.println("Centro vaccinale registrato");
     }
 
-    public void registraVaccinato() throws RemoteException, SQLException {
-        new RegVaccinato();
+    public void registraVaccinato(String centro, String codf, String data, String vacc, boolean secondaDose) throws RemoteException, SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
+        System.out.println(centro+codf+data+vacc+secondaDose);
+        if (secondaDose){
+            PreparedStatement ps1 = con.prepareStatement("UPDATE \"Vaccinati_" + centro + "\" SET Data_Seconda_Dose='" + data + "' WHERE CodiceFiscale='" + codf + "'");
+            ps1.executeUpdate();
+        } else {
+            PreparedStatement ps2 = con.prepareStatement("UPDATE \"Vaccinati_" + centro + "\" SET Data_Prima_Dose='" + data + "', vaccino='" + vacc + "' WHERE CodiceFiscale='" + codf + "'");
+            ps2.executeUpdate();
+        }
     }
 
 

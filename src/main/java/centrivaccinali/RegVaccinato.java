@@ -1,9 +1,12 @@
+package centrivaccinali;
+
+import serverCV.serverCV;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
+import java.rmi.RemoteException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,14 +25,9 @@ public class RegVaccinato extends JFrame{
     private JFrame frame;
     private Scanner scan;
     private String[] vaxList = {"Pfizer", "AstraZeneca", "Moderna", "J&J"};
-    private serverCVInterface server;
+    private serverCV s;
 
     public RegVaccinato() throws SQLException {
-        try {
-            Registry reg = LocateRegistry.getRegistry();
-            server = (serverCVInterface) reg.lookup("serverCV");
-        }  catch (Exception m) {
-            System.out.println("Client err:"+m.getMessage());}
         scan = new Scanner(System.in);
         frame = new JFrame("Registra Vaccinato");
         frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -39,7 +37,6 @@ public class RegVaccinato extends JFrame{
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        frame.setAlwaysOnTop(true);
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         try {
             PreparedStatement stm = con.prepareStatement("SELECT Nome FROM CentriVaccinali");
@@ -62,37 +59,25 @@ public class RegVaccinato extends JFrame{
         conferma.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String codf = cf.getText();
-                if(codf.equals("")) JOptionPane.showMessageDialog(conferma,"Inserire codice fiscale!");
-                try {
-                    PreparedStatement ps = con.prepareStatement("SELECT * FROM cittadini_registrati WHERE codicefiscale ='"+codf+"'");
-                    ResultSet rs = ps.executeQuery();
-                    if (!rs.next())
-                        JOptionPane.showMessageDialog(conferma,"Codice fiscale non trovato!");
-                    else {
-                        String centro = (String) centriVacc.getSelectedItem();
-                        String d = data.getText();
-                        String vac = (String) vaccini.getSelectedItem();
-                        if (secondaDose.isSelected()){
-                            PreparedStatement ps1 = con.prepareStatement("UPDATE \"Vaccinati_" + centro + "\" SET Data_Seconda_Dose='" + d + "' WHERE CodiceFiscale='" + codf + "'");
-                            ps1.executeUpdate();
-                        } else {
-                            PreparedStatement ps2 = con.prepareStatement("UPDATE \"Vaccinati_" + centro + "\" SET Data_Prima_Dose='" + d + "', vaccino='" + vac + "' WHERE CodiceFiscale='" + codf + "'");
-                            ps2.executeUpdate();
+                if(cf.getText().equals("") || cf.getText().trim().length()!=16 || data.getText().length()!=10) JOptionPane.showMessageDialog(conferma,"Codice fiscale errato o data non corretta");
+                else {
+                    try {
+                        s = new serverCV();
+                        PreparedStatement ps = con.prepareStatement("SELECT * FROM cittadini_registrati WHERE codicefiscale ='" + cf.getText() + "'");
+                        ResultSet rs = ps.executeQuery();
+                        if (!rs.next())
+                            JOptionPane.showMessageDialog(conferma, "Codice fiscale non trovato!");
+                        else {
+                            s.registraVaccinato(centriVacc.getSelectedItem().toString(), cf.getText(), data.getText(), vaccini.getSelectedItem().toString(), secondaDose.isSelected());
+                            JOptionPane.showMessageDialog(conferma, "Utente vaccinato");
                         }
-                        frame.setVisible(false);
-                        frame.dispose();
+                    } catch (SQLException | RemoteException throwables) {
+                        throwables.printStackTrace();
+
                     }
-                } catch (SQLException throwables) {
-                    System.out.println(throwables.getSQLState());
-                    throwables.printStackTrace();
                 }
             }
         });
-    }
-
-    public static void main(String[] args) throws SQLException {
-        new RegVaccinato();
     }
 }
 

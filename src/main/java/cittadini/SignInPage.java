@@ -1,3 +1,7 @@
+package cittadini;
+
+import serverCV.serverCV;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -66,7 +70,7 @@ public class SignInPage extends JFrame {
                     } else if(rs.next() == false){
                         JOptionPane.showMessageDialog(signInButton,"Utente Registrato!");
                         frame1.setVisible(false);
-                        new LoginPage();
+                        new utenteCV();
                     }
                     else{
                         JOptionPane.showMessageDialog(signInButton,"Errore nella registrazione!", "Errore!", JOptionPane.ERROR_MESSAGE);}
@@ -83,8 +87,8 @@ public class SignInPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 frame1.setVisible(false);
                 try {
-                    new LoginPage();
-                } catch (SQLException ex) {
+                    new utenteCV();
+                } catch (SQLException | RemoteException ex) {
                     ex.printStackTrace();
                 }
             }

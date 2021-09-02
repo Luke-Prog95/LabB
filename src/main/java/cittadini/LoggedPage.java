@@ -1,3 +1,7 @@
+package cittadini;
+
+import serverCV.serverCV;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,7 +14,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import javax.swing.*;
 
 public class LoggedPage extends JFrame {
     private JFrame frame3;
@@ -40,7 +43,7 @@ public class LoggedPage extends JFrame {
     private String centroVac;
     private String codf;
 
-    public LoggedPage(String utente, String id) throws SQLException, ParseException {
+    public LoggedPage(String utente, String id) throws SQLException, ParseException, RemoteException {
         frame3 = new JFrame("Form");
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
         frame3.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -84,7 +87,7 @@ public class LoggedPage extends JFrame {
             if(rs1.getString("data_prima_dose") == null) {
                 frame3.setVisible(false);
                 JOptionPane.showMessageDialog(confermaButton, "Non hai ancora effettuato una vaccinazione!");
-                new LoginPage();
+                new utenteCV();
             } else {
                 if (rs1.getString("data_seconda_dose") == null) {
                     vac = sdf.parse(rs1.getString("data_prima_dose"));
@@ -95,7 +98,7 @@ public class LoggedPage extends JFrame {
                 if (giorniPassati>14) {
                     frame3.setVisible(false);
                     JOptionPane.showMessageDialog(confermaButton, "Passati più di 14 giorni per compilare il form!");
-                    new LoginPage();
+                    new utenteCV();
                 } else {
                     frame3.setVisible(true);
                 }
@@ -204,8 +207,8 @@ public class LoggedPage extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 frame3.setVisible(false);
                 try {
-                    new LoginPage();
-                } catch (SQLException ex) {
+                    new utenteCV();
+                } catch (SQLException | RemoteException ex) {
                     ex.printStackTrace();
                 }
             }
