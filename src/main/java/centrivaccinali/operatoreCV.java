@@ -57,7 +57,7 @@ public class operatoreCV {
             });
         } catch (Exception e) {
             System.out.println("Client err:"+e.getMessage());
-            JOptionPane.showMessageDialog(null,"Server offline");
+            JOptionPane.showMessageDialog(null,"Errore nella connessione o nella lettura dei dati dal server");
         }
     }
 

@@ -1,12 +1,14 @@
 package cittadini;
 
-import serverCV.serverCV;
+import serverCV.serverCVInterface;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -22,77 +24,88 @@ public class SignInPage extends JFrame {
     private JTextField userText;
     private JComboBox comboBox1; //implementare scelta centro dove registrarsi
     private JButton button1;
-    private ArrayList<String> l;
+    private serverCVInterface server;
 
-    public SignInPage() throws SQLException {
-        frame1 = new JFrame("SignUp");
-        frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame1.setPreferredSize(new Dimension(500,450));
-        frame1.setResizable(false);
-        frame1.add(panel2);
-        frame1.pack();
-        frame1.setLocationRelativeTo(null);
-        frame1.setVisible(true);
+    public SignInPage() throws SQLException
+    {
+        try
+        {
+            Registry reg = LocateRegistry.getRegistry();
+            server = (serverCVInterface) reg.lookup("serverCV");
+            frame1 = new JFrame("SignUp");
+            frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame1.setPreferredSize(new Dimension(500,450));
+            frame1.setResizable(false);
+            frame1.add(panel2);
+            frame1.pack();
+            frame1.setLocationRelativeTo(null);
+            frame1.setVisible(true);
+            var c = server.listaCentriVaccinali().Clone();
+            var cobj = (ArrayList<String>)c.getObject(0);
+            var cobjadd = (ArrayList<String>)c.getObject(1);
+            for(int i = 0; i < cobj.size(); i++)
+            {
+                comboBox1.addItem(cobj.get(i)+" ("+cobjadd.get(i)+")");
+            }
 
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
-        PreparedStatement stm = con.prepareStatement("SELECT Nome FROM CentriVaccinali");
-        PreparedStatement stm2 = con.prepareStatement("SELECT Indirizzo FROM CentriVaccinali");
-        ResultSet rs = stm.executeQuery();
-        ResultSet rs2 = stm2.executeQuery();
-        while(rs.next() && rs2.next()){
-            String indir = rs2.getString(1);
-            comboBox1.addItem(rs.getString(1)+" ("+indir+")");
-        }
 
-        signInButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    Class.forName("org.postgresql.Driver");
-                } catch (ClassNotFoundException c) {
-                    System.out.println("Class not found " + c);
-                }
-                try {
-                    String user = userText.getText();
-                    String p = password.getText();
-                    String n = Name.getText();
-                    String c = Surname.getText();
-                    String cf = CodF.getText();
-                    String em = Email.getText();
-                    String cen = (String) comboBox1.getSelectedItem();
-                    String[] nomeC = cen.split(" \\(");
-                    serverCV sv = new serverCV();
-                    ResultSet rs = sv.registraCittadino(n,c,cf,em,user,p,nomeC[0]);
-                    if(user.trim().equals("") || p.trim().equals("") || n.trim().equals("")  || c.trim().equals("") || cf.trim().equals("") || em.trim().equals("")) {
-                        JOptionPane.showMessageDialog(signInButton,"Uno dei campi è vuoto!", "Errore!", JOptionPane.ERROR_MESSAGE);
-                    } else if(cf.trim().length()!=16){
-                        JOptionPane.showMessageDialog(signInButton,"Codice fiscale errato", "Errore!", JOptionPane.ERROR_MESSAGE);
-                    } else if(rs.next() == false){
-                        JOptionPane.showMessageDialog(signInButton,"Utente Registrato!");
-                        frame1.setVisible(false);
-                        new utenteCV();
+            signInButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        Class.forName("org.postgresql.Driver");
+                    } catch (ClassNotFoundException c) {
+                        System.out.println("Class not found " + c);
                     }
-                    else{
-                        JOptionPane.showMessageDialog(signInButton,"Errore nella registrazione!", "Errore!", JOptionPane.ERROR_MESSAGE);}
-                } catch (SQLException | RemoteException throwables) {
-                    throwables.printStackTrace();
-                } catch (java.lang.NullPointerException ex) {
-                    JOptionPane.showMessageDialog(signInButton,"Username già utilizzato!", "Errore!", JOptionPane.ERROR_MESSAGE);
+                    try {
+                        String user = userText.getText();
+                        String p = password.getText();
+                        String n = Name.getText();
+                        String c = Surname.getText();
+                        String cf = CodF.getText();
+                        String em = Email.getText();
+                        String nomeC = cobj.get(comboBox1.getSelectedIndex());
+                        if(user.trim().equals("") || p.trim().equals("") || n.trim().equals("")  || c.trim().equals("") || cf.trim().equals("") || em.trim().equals("")) {
+                            JOptionPane.showMessageDialog(signInButton,"Uno dei campi è vuoto!", "Errore!", JOptionPane.ERROR_MESSAGE);
+                        }
+                        else if(cf.trim().length() != 16)
+                        {
+                            JOptionPane.showMessageDialog(signInButton,"Codice fiscale errato", "Errore!", JOptionPane.ERROR_MESSAGE);
+                        }
+                        else if(server.registraCittadino(n,c,cf,em,user,p,nomeC))
+                        {
+                            JOptionPane.showMessageDialog(signInButton,"Utente Registrato!");
+                            frame1.setVisible(false);
+                            new utenteCV();
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(signInButton,"Errore nella registrazione!", "Errore!", JOptionPane.ERROR_MESSAGE);}
+                    } catch (SQLException | RemoteException throwables) {
+                        throwables.printStackTrace();
+                    } catch (java.lang.NullPointerException ex) {
+                        JOptionPane.showMessageDialog(signInButton,"Username già utilizzato!", "Errore!", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
-            }
-        });
+            });
 
-        button1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame1.setVisible(false);
-                try {
-                    new utenteCV();
-                } catch (SQLException | RemoteException ex) {
-                    ex.printStackTrace();
+            button1.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    frame1.setVisible(false);
+                    try {
+                        new utenteCV();
+                    } catch (SQLException | RemoteException ex) {
+                        ex.printStackTrace();
+                    }
                 }
-            }
-        });
+            });
+        }
+        catch (Exception e)
+        {
+            System.out.println("Client err:"+e.getMessage());
+            JOptionPane.showMessageDialog(null,"Errore nella connessione o nella lettura dei dati dal server");
+            System.exit(1);
+        }
     }
 }
 

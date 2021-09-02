@@ -38,7 +38,6 @@ public class utenteCV extends JFrame {
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
-            Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", "postgres", "postgres");
 
             signInButton.addActionListener(new ActionListener() {
                 @Override
@@ -56,27 +55,37 @@ public class utenteCV extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        serverCV s = new serverCV();
+
                         String user = userText.getText();
                         String p = password.getText();
-                        ResultSet rs = s.logCittadino(user);
-                        if (user.equals("") || p.equals("")) {
+                        Container c = server.logCittadino(user).Clone();
+                        if (user.equals("") || p.equals(""))
+                        {
                             JOptionPane.showMessageDialog(signInButton, "Campo user o password vuoti!");
-                        } else if (rs.next() == false) {
+                        }
+                        else if (c.getString(0) == "")
+                        {
                             JOptionPane.showMessageDialog(logInButton, "Utente Non Registrato!");
-                        } else {
-                            String pas = rs.getString("Pass");
-                            if (pas.equals(p)) {
-                                PreparedStatement stm1 = con.prepareStatement("SELECT Idvac FROM Cittadini_Registrati WHERE Username ='"+user+"'");
-                                ResultSet rs1 = stm1.executeQuery();
-                                if(rs1.next() && (Integer.toString(rs1.getInt(1))!=null)) {
+                        }
+                        else
+                        {
+                            String pas = c.getString(1);
+                            if (pas.equals(p))
+                            {
+                                var container = server.verificaVaccinato(user);
+                                if(container.getBool(1))
+                                {
                                     JOptionPane.showMessageDialog(logInButton, "Sei Loggato!");
                                     frame.setVisible(false);
-                                    new LoggedPage(user,Integer.toString(rs1.getInt(1)));
-                                } else {  //ToDo cambiare ui dopo il log
+                                    new LoggedPage(user,container.getString(0));
+                                }
+                                else
+                                {  //ToDo cambiare ui dopo il log
                                     JOptionPane.showMessageDialog(logInButton, "Utente: "+user+"\nNon hai ancora effettuato il vaccino!\nNon è possibile compilare il report!");
                                 }
-                            } else {
+                            }
+                            else
+                            {
                                 JOptionPane.showMessageDialog(logInButton, "Password errata!");
                             }
                         }
@@ -95,7 +104,7 @@ public class utenteCV extends JFrame {
             });
         } catch (Exception e) {
             System.out.println("Client err:"+e.getMessage());
-            JOptionPane.showMessageDialog(null,"Server offline");
+            JOptionPane.showMessageDialog(null,"Errore nella connessione o nella lettura dei dati dal server");
         }
     }
 
