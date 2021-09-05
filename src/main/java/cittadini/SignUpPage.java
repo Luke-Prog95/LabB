@@ -12,7 +12,7 @@ import java.rmi.registry.Registry;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class SignInPage extends JFrame {
+public class SignUpPage extends JFrame {
     private JPanel panel2;
     private JFrame frame1;
     private JTextField Name;
@@ -26,7 +26,7 @@ public class SignInPage extends JFrame {
     private JButton button1;
     private serverCVInterface server;
 
-    public SignInPage() throws SQLException
+    public SignUpPage() throws SQLException
     {
         try
         {

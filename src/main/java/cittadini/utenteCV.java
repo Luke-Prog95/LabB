@@ -1,13 +1,11 @@
 package cittadini;
 
-import serverCV.serverCV;
 import serverCV.serverCVInterface;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -44,7 +42,7 @@ public class utenteCV extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     frame.setVisible(false);
                     try {
-                        new SignInPage();
+                        new SignUpPage();
                     } catch (SQLException ex) {
                         ex.printStackTrace();
                     }
