@@ -65,7 +65,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             stmt2.execute();
             PreparedStatement stmt3 = con.prepareStatement(query1);
             stmt3.execute();
-            System.out.println("Centro vaccinale registrato");
+            System.out.println("Centro vaccinale "+ nome + "registrato");
         }
         return true;
     }
@@ -300,7 +300,6 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
 
     public void registraVaccinato(String centro, String codf, String data, String vacc, boolean secondaDose) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
-        System.out.println(centro+codf+data+vacc+secondaDose);
         if (secondaDose){
             PreparedStatement ps1 = con.prepareStatement("UPDATE \"Vaccinati_" + centro + "\" SET Data_Seconda_Dose='" + data + "' WHERE CodiceFiscale='" + codf + "'");
             ps1.executeUpdate();
