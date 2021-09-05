@@ -81,6 +81,7 @@ public class RegVaccinato extends JFrame{
                             {
                                 server.registraVaccinato(centriVacc.getSelectedItem().toString(), cf.getText(), data.getText(), vaccini.getSelectedItem().toString(), secondaDose.isSelected());
                                 JOptionPane.showMessageDialog(conferma, "Utente vaccinato");
+                                frame.setVisible(false);
                             }
                         } catch (SQLException | RemoteException throwables) {
                             throwables.printStackTrace();

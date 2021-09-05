@@ -26,7 +26,7 @@ public class operatoreCV {
             server = (serverCVInterface) reg.lookup("serverCV");
             oFrame = new JFrame("Operatore");
             oFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            oFrame.setPreferredSize(new Dimension(500, 450));
+            oFrame.setPreferredSize(new Dimension(400, 350));
             oFrame.setResizable(false);
             oFrame.add(panel1);
             oFrame.pack();

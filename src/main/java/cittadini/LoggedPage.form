@@ -88,7 +88,7 @@
               <text value="Crisi ipertensiva"/>
             </properties>
           </component>
-          <component id="6133e" class="javax.swing.JTextField" binding="textField1" default-binding="true">
+          <component id="6133e" class="javax.swing.JTextField" binding="malTesta">
             <constraints>
               <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
@@ -96,7 +96,7 @@
             </constraints>
             <properties/>
           </component>
-          <component id="44b92" class="javax.swing.JTextField" binding="textField2" default-binding="true">
+          <component id="44b92" class="javax.swing.JTextField" binding="febbre">
             <constraints>
               <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
@@ -172,7 +172,7 @@
               <value value="0"/>
             </properties>
           </component>
-          <component id="2720f" class="javax.swing.JTextField" binding="textField3" default-binding="true">
+          <component id="2720f" class="javax.swing.JTextField" binding="dolori">
             <constraints>
               <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
@@ -180,7 +180,7 @@
             </constraints>
             <properties/>
           </component>
-          <component id="658d1" class="javax.swing.JTextField" binding="textField4" default-binding="true">
+          <component id="658d1" class="javax.swing.JTextField" binding="linfo">
             <constraints>
               <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
@@ -188,7 +188,7 @@
             </constraints>
             <properties/>
           </component>
-          <component id="b5a4e" class="javax.swing.JTextField" binding="textField5" default-binding="true">
+          <component id="b5a4e" class="javax.swing.JTextField" binding="tachi">
             <constraints>
               <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
@@ -196,7 +196,7 @@
             </constraints>
             <properties/>
           </component>
-          <component id="9d077" class="javax.swing.JTextField" binding="textField6" default-binding="true">
+          <component id="9d077" class="javax.swing.JTextField" binding="crisi">
             <constraints>
               <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>

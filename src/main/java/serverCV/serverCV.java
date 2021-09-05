@@ -21,46 +21,53 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     public serverCV() throws RemoteException {
     }
 
-    public void registraCentroVaccinale(String nome, String comune, String qualif, String numCiv, String prov, String via, String tipo, int cap) throws RemoteException, SQLException {
+    public Boolean registraCentroVaccinale(String nome, String comune, String qualif, String numCiv, String prov, String via, String tipo, int cap) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
         String indirizzo = qualif+" "+via+" "+numCiv+" "+comune+" "+"("+prov+")"+" "+cap;
-        PreparedStatement stmt = con.prepareStatement("INSERT INTO CentriVaccinali (Nome,Indirizzo,Tipologia,Identificatore,Nome_via,Num_civico,Comune,Cap,Provincia) VALUES (?,?,?,?,?,?,?,?,?)");
-        stmt.setString(1,nome);
-        stmt.setString(2,indirizzo);
-        stmt.setString(3,tipo);
-        stmt.setString(4,qualif);
-        stmt.setString(5,via);
-        stmt.setString(6,numCiv);
-        stmt.setString(7,comune);
-        stmt.setInt(8,cap);
-        stmt.setString(9,prov);
-        stmt.executeUpdate();
-        String query = "CREATE TABLE \"Vaccinati_"+nome+"\"(Cittadino VARCHAR(100),\n" +
-                "                                 CodiceFiscale VARCHAR(16),\n" +
-                "                                 Data_Prima_dose VARCHAR(10), \n" +
-                "                                 Data_Seconda_dose VARCHAR(10), \n" +
-                "                                 Vaccino VARCHAR(100), \n" +
-                "                                 PRIMARY KEY (CodiceFiscale),\n" +
-                "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale));\n";
-        String query1 = "CREATE TABLE \"Sintomi_"+nome+"\"(CodiceFiscale VARCHAR(16),  \n" +
-                "                                 Testa NUMERIC(1),\n" +
-                "                                 Febbre NUMERIC(1),\n" +
-                "                                 Dolori NUMERIC(1), \n" +
-                "                                 Linfo NUMERIC(1), \n" +
-                "                                 Tachicardia NUMERIC(1), \n" +
-                "                                 Crisi NUMERIC(1), \n" +
-                "                                 TestaNote VARCHAR(256) , \n" +
-                "                                 FebbreNote VARCHAR(256) , \n" +
-                "                                 DoloriNote VARCHAR(256), \n" +
-                "                                 LinfoNote VARCHAR(256) , \n" +
-                "                                 TachiNote VARCHAR(256), \n" +
-                "                                 CrisiNote VARCHAR(256) , \n" +
-                "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale)); \n";
-        PreparedStatement stmt2 = con.prepareStatement(query);
-        stmt2.execute();
-        PreparedStatement stmt3 = con.prepareStatement(query1);
-        stmt3.execute();
-        System.out.println("Centro vaccinale registrato");
+        PreparedStatement stmt1 = con.prepareStatement("SELECT nome FROM CentriVaccinali WHERE nome = '"+nome+"'");
+        ResultSet rs = stmt1.executeQuery();
+        //System.out.println(rs.getString(1));
+        if(rs.next()) return false;
+        else {
+            PreparedStatement stmt = con.prepareStatement("INSERT INTO CentriVaccinali (Nome,Indirizzo,Tipologia,Identificatore,Nome_via,Num_civico,Comune,Cap,Provincia) VALUES (?,?,?,?,?,?,?,?,?)");
+            stmt.setString(1, nome);
+            stmt.setString(2, indirizzo);
+            stmt.setString(3, tipo);
+            stmt.setString(4, qualif);
+            stmt.setString(5, via);
+            stmt.setString(6, numCiv);
+            stmt.setString(7, comune);
+            stmt.setInt(8, cap);
+            stmt.setString(9, prov);
+            stmt.executeUpdate();
+            String query = "CREATE TABLE \"Vaccinati_" + nome + "\"(Cittadino VARCHAR(100),\n" +
+                    "                                 CodiceFiscale VARCHAR(16),\n" +
+                    "                                 Data_Prima_dose VARCHAR(10), \n" +
+                    "                                 Data_Seconda_dose VARCHAR(10), \n" +
+                    "                                 Vaccino VARCHAR(100), \n" +
+                    "                                 PRIMARY KEY (CodiceFiscale),\n" +
+                    "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale));\n";
+            String query1 = "CREATE TABLE \"Sintomi_" + nome + "\"(CodiceFiscale VARCHAR(16),  \n" +
+                    "                                 Testa NUMERIC(1),\n" +
+                    "                                 Febbre NUMERIC(1),\n" +
+                    "                                 Dolori NUMERIC(1), \n" +
+                    "                                 Linfo NUMERIC(1), \n" +
+                    "                                 Tachicardia NUMERIC(1), \n" +
+                    "                                 Crisi NUMERIC(1), \n" +
+                    "                                 TestaNote VARCHAR(256) , \n" +
+                    "                                 FebbreNote VARCHAR(256) , \n" +
+                    "                                 DoloriNote VARCHAR(256), \n" +
+                    "                                 LinfoNote VARCHAR(256) , \n" +
+                    "                                 TachiNote VARCHAR(256), \n" +
+                    "                                 CrisiNote VARCHAR(256) , \n" +
+                    "                                 FOREIGN KEY (CodiceFiscale) REFERENCES Cittadini_Registrati(CodiceFiscale)); \n";
+            PreparedStatement stmt2 = con.prepareStatement(query);
+            stmt2.execute();
+            PreparedStatement stmt3 = con.prepareStatement(query1);
+            stmt3.execute();
+            System.out.println("Centro vaccinale registrato");
+        }
+        return true;
     }
 
     @Override
@@ -213,6 +220,24 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return c;
     }
 
+    public Container infoNoteVaccinato(String cf, String nCen) throws RemoteException, SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
+        String query = "SELECT testanote,febbrenote,dolorinote,linfonote,tachinote,crisinote FROM \"Sintomi_" + nCen + "\" WHERE codicefiscale = '" + cf + "'";
+        PreparedStatement stm = con.prepareStatement(query);
+        ResultSet rs = stm.executeQuery();
+        var c1 = new Container();
+        if(rs.next())
+        {
+            c1.setObject(rs.getString("testanote"));
+            c1.setObject(rs.getString("febbrenote"));
+            c1.setObject(rs.getString("dolorinote"));
+            c1.setObject(rs.getString("linfonote"));
+            c1.setObject(rs.getString("tachinote"));
+            c1.setObject(rs.getString("crisinote"));
+        }
+        return c1;
+    }
+
     @Override
     public boolean esisteCodiceFiscale(String cf) throws RemoteException, SQLException
     {
@@ -251,6 +276,26 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean inserisciNote(int id, String n1, String n2, String n3, String n4, String n5, String n6,String cf, String centro) throws RemoteException,SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
+        PreparedStatement stm2 = con.prepareStatement("SELECT codicefiscale FROM cittadini_registrati WHERE idvac="+id);
+        ResultSet rs2 = stm2.executeQuery();
+        if(rs2.next()) {
+            String codf = rs2.getString(1);
+            String query1 = "SELECT codicefiscale FROM \"Sintomi_" + centro + "\" WHERE codicefiscale = '" + cf + "'";
+            stm2 = con.prepareStatement(query1);
+            ResultSet rs3 = stm2.executeQuery();
+            if (rs3.next()) {
+                String query2 = "UPDATE \"Sintomi_" + centro + "\" SET testanote = '" + n1 + "' ,febbrenote = '" + n2 + "' ,dolorinote = '" + n3 + "' ," +
+                        "linfonote = '" + n4 + "' ,tachinote = '" + n5 + "' ,crisinote = '" + n6 + "' WHERE codicefiscale = '" + codf + "'";
+                PreparedStatement stm3 = con.prepareStatement(query2);
+                stm3.executeUpdate();
+            }
+        }
+        return true;
     }
 
     public void registraVaccinato(String centro, String codf, String data, String vacc, boolean secondaDose) throws RemoteException, SQLException {
@@ -430,7 +475,11 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             do
             {
                 mUsername = JOptionPane.showInputDialog(null,"Inserisci lo username:");
-                mPassword = JOptionPane.showInputDialog(null,"Inserisci la password:");
+                if (mUsername==null || mUsername.isEmpty()) System.exit(0);
+                JPasswordField pass = new JPasswordField();
+                int okCxl = JOptionPane.showConfirmDialog(null, pass, "Enter Password",JOptionPane.OK_CANCEL_OPTION);
+                if (okCxl == JOptionPane.OK_OPTION)  mPassword = new String(pass.getPassword());
+                //mPassword = JOptionPane.showInputDialog(null,new JPasswordField("Inserisci password:"));
                 try
                 {
                     conn = true;
@@ -441,10 +490,10 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                     if(!e.getSQLState().equals("3D000"))
                     {
                         conn = false;
-                        var x = JOptionPane.showConfirmDialog(null,"Dati errati.\nRiprovare?","Connessione",JOptionPane.ERROR_MESSAGE,JOptionPane.OK_OPTION);
-                        if(x == JOptionPane.NO_OPTION) return;
+                        var x = JOptionPane.showConfirmDialog(null,"Dati errati.\nRiprovare?","Connessione",JOptionPane.ERROR_MESSAGE,JOptionPane.YES_NO_OPTION);
+                        if(x == JOptionPane.NO_OPTION) { return;}
                     }
-                    JOptionPane.showConfirmDialog(null,"Il database non esiste.\n");
+
                 }
 
             }
@@ -467,7 +516,8 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             }
         } catch (PSQLException ex) {
             if(ex.getSQLState().equals("3D000")){
-                System.out.println("Database non esistente\n\nCreazione Database");
+                JOptionPane.showMessageDialog(null,"   Database non esistente creato!\nReinserire credenziali per accedere!");
+                //System.out.println("Database non esistente\n\nCreazione Database");
                 Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", mUsername, mPassword);
                 String createDB = "CREATE DATABASE \"LabB\"\n" +
                         "\tWITH \n" +

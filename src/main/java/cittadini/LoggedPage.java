@@ -12,10 +12,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 public class LoggedPage extends JFrame {
     private JFrame frame3;
@@ -27,18 +23,18 @@ public class LoggedPage extends JFrame {
     private JCheckBox tachicardiaCheckBox;
     private JCheckBox crisiIpertensivaCheckBox;
     private JButton confermaButton;
-    private JTextField textField1;
-    private JTextField textField2;
+    private JTextField malTesta;
+    private JTextField febbre;
     private JSlider slider1;
     private JSlider slider2;
     private JSlider slider3;
     private JSlider slider4;
     private JSlider slider5;
     private JSlider slider6;
-    private JTextField textField3;
-    private JTextField textField4;
-    private JTextField textField5;
-    private JTextField textField6;
+    private JTextField dolori;
+    private JTextField linfo;
+    private JTextField tachi;
+    private JTextField crisi;
     private JButton backButton;
     private JLabel nomeLabel;
     private JLabel IDLabel;
@@ -59,12 +55,12 @@ public class LoggedPage extends JFrame {
             frame3.pack();
             frame3.setLocationRelativeTo(null);
             frame3.setVisible(true);
-            textField1.setEditable(false);
-            textField2.setEditable(false);
-            textField3.setEditable(false);
-            textField4.setEditable(false);
-            textField5.setEditable(false);
-            textField6.setEditable(false);
+            malTesta.setEditable(false);
+            febbre.setEditable(false);
+            dolori.setEditable(false);
+            linfo.setEditable(false);
+            tachi.setEditable(false);
+            crisi.setEditable(false);
             slider1.setEnabled(false);
             slider2.setEnabled(false);
             slider3.setEnabled(false);
@@ -103,16 +99,24 @@ public class LoggedPage extends JFrame {
             slider5.setValue(cx.getInt(4));
             slider6.setValue(cx.getInt(5));
 
+            var cx1 = server.infoNoteVaccinato(codf,centroVac);
+            malTesta.setText(cx1.getString(0));
+            febbre.setText(cx1.getString(1));
+            dolori.setText(cx1.getString(2));
+            linfo.setText(cx1.getString(3));
+            tachi.setText(cx1.getString(4));
+            crisi.setText(cx1.getString(5));
+
 
             malDiTestaCheckBox.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
                     if(e.getStateChange() == ItemEvent.SELECTED) {
                         slider1.setEnabled(true);
-                        textField1.setEditable(true);
+                        malTesta.setEditable(true);
                     } else {
                         slider1.setEnabled(false);
-                        textField1.setEditable(false);
+                        malTesta.setEditable(false);
                     };
                 }
             });
@@ -122,10 +126,10 @@ public class LoggedPage extends JFrame {
                 public void itemStateChanged(ItemEvent e) {
                     if(e.getStateChange() == ItemEvent.SELECTED) {
                         slider2.setEnabled(true);
-                        textField2.setEditable(true);
+                        febbre.setEditable(true);
                     } else {
                         slider2.setEnabled(false);
-                        textField2.setEditable(false);
+                        febbre.setEditable(false);
                     };
                 }
             });
@@ -135,10 +139,10 @@ public class LoggedPage extends JFrame {
                 public void itemStateChanged(ItemEvent e) {
                     if(e.getStateChange() == ItemEvent.SELECTED) {
                         slider3.setEnabled(true);
-                        textField3.setEditable(true);
+                        dolori.setEditable(true);
                     } else {
                         slider3.setEnabled(false);
-                        textField3.setEditable(false);
+                        dolori.setEditable(false);
                     };
                 }
             });
@@ -148,10 +152,10 @@ public class LoggedPage extends JFrame {
                 public void itemStateChanged(ItemEvent e) {
                     if(e.getStateChange() == ItemEvent.SELECTED) {
                         slider4.setEnabled(true);
-                        textField4.setEditable(true);
+                        linfo.setEditable(true);
                     } else {
                         slider4.setEnabled(false);
-                        textField4.setEditable(false);
+                        linfo.setEditable(false);
                     };
                 }
             });
@@ -161,10 +165,10 @@ public class LoggedPage extends JFrame {
                 public void itemStateChanged(ItemEvent e) {
                     if(e.getStateChange() == ItemEvent.SELECTED) {
                         slider5.setEnabled(true);
-                        textField5.setEditable(true);
+                        tachi.setEditable(true);
                     } else {
                         slider5.setEnabled(false);
-                        textField5.setEditable(false);
+                        tachi.setEditable(false);
                     };
                 }
             });
@@ -174,10 +178,10 @@ public class LoggedPage extends JFrame {
                 public void itemStateChanged(ItemEvent e) {
                     if(e.getStateChange() == ItemEvent.SELECTED) {
                         slider6.setEnabled(true);
-                        textField6.setEditable(true);
+                        crisi.setEditable(true);
                     } else {
                         slider6.setEnabled(false);
-                        textField6.setEditable(false);
+                        crisi.setEditable(false);
                     };
                 }
             });
@@ -203,6 +207,7 @@ public class LoggedPage extends JFrame {
                         String[] ident = label.split(" ");
                         server.inserisciEventiAvversi(Integer.parseInt(ident[1]),slider1.getValue(),slider2.getValue(),slider3.getValue(),
                                 slider4.getValue(),slider5.getValue(),slider6.getValue(),codf,centroVac);
+                        server.inserisciNote(Integer.parseInt(ident[1]),malTesta.getText(),febbre.getText(),dolori.getText(),linfo.getText(),tachi.getText(),crisi.getText(),codf,centroVac);
                         JOptionPane.showMessageDialog(confermaButton, "Report inviato");
                     } catch (RemoteException | SQLException ex) {
                         ex.printStackTrace();

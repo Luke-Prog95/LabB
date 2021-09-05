@@ -36,7 +36,7 @@ public class RegCentro {
             Registry reg = LocateRegistry.getRegistry();
             server = (serverCVInterface) reg.lookup("serverCV");
             cenFrame = new JFrame("RegCentro");
-            cenFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+            cenFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             cenFrame.setPreferredSize(new Dimension(500, 450));
             cenFrame.setResizable(false);
             cenFrame.add(panel);
@@ -51,8 +51,8 @@ public class RegCentro {
             registraButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if(nome.equals("") || com.equals("") || qual.equals("")  || nc.equals("") || prov.equals("") || ind.equals("") || capT.equals("")
-                            || capT.getText().length()!=5 || prov.getText().length()!=2)
+                    if(nome.getText().trim().equals("") || com.getText().trim().equals("") || qual.getText().trim().equals("")  || nc.getText().trim().equals("") || prov.getText().trim().equals("") || ind.getText().trim().equals("") || capT.getText().trim().equals("")
+                            || capT.getText().trim().length()!=5 || prov.getText().trim().length()!=2 || (!hubRadioButton.isSelected() && !aziendaleRadioButton.isSelected() && !ospedalieroRadioButton.isSelected()) || !isNumber(capT.getText().trim(),capT.getText().trim().length()))
                         JOptionPane.showMessageDialog(registraButton, "Dati mancanti o errati!");
                     else {
                         if (hubRadioButton.isSelected())
@@ -63,8 +63,11 @@ public class RegCentro {
                             tipo = ospedalieroRadioButton.getText();
                         try {
                             int cap = Integer.parseInt(capT.getText());
-                            server.registraCentroVaccinale(nome.getText(), com.getText(), qual.getText(), nc.getText(), prov.getText(), ind.getText(), tipo, cap);
-                            JOptionPane.showMessageDialog(registraButton, "Centro registrato");
+                            if (server.registraCentroVaccinale(nome.getText(), com.getText(), qual.getText(), nc.getText(), prov.getText(), ind.getText(), tipo, cap)){
+                                JOptionPane.showMessageDialog(registraButton, "Centro registrato");
+                                cenFrame.setVisible(false);
+                            }
+                            else JOptionPane.showMessageDialog(registraButton, "Esiste già un centro con questo nome");
                         } catch (RemoteException | SQLException ex) {
                             ex.printStackTrace();
                         }
@@ -80,4 +83,21 @@ public class RegCentro {
         }
 
     }
+
+    public static boolean isNumber(String str, int l)
+    {
+        boolean res=true;
+        for (int i = 0; i < l; i++) {
+            if (str.charAt(i) >= '0' && str.charAt(i) <= '9') {
+                res = true;
+            }
+            else {
+                res = false;
+                break;
+            }
+        }
+        return res;
+    }
+
+
 }
