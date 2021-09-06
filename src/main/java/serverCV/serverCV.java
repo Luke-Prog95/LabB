@@ -1,12 +1,11 @@
 /*
     Limiti Luca 738873 (sede VA)
     Zehhaf Ishak 737763 (sede VA)
-    Ferro Paolo (sede VA)
+    Ferro Paolo 737529 (sede VA)
  */
 
 package serverCV;
 
-import centrivaccinali.RegVaccinato;
 import cittadini.Container;
 import org.postgresql.util.PSQLException;
 
@@ -22,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
+/**
+ * Classe per inizializzare il server e per istanziare i suoi metodi
+ */
 public class serverCV extends UnicastRemoteObject implements serverCVInterface {
 
     private static Scanner scan = new Scanner(System.in).useDelimiter("\\n"); //Aggiunto altrimenti con lo spazio saltava al prossimo scan
@@ -30,6 +32,19 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     public serverCV() throws RemoteException {
     }
 
+    /**
+     * Metodo per registrare un nuovo centro vaccinale e salvarlo sul database nella tabella CentriVaccinali
+     * @param nome nome del nuovo centro vaccinale
+     * @param comune comune del nuovo centro vaccinale
+     * @param qualif qualificatore dell'indirizzo del nuovo centro vaccinale
+     * @param numCiv numero civico dell'indirizzo del nuovo centro vaccinale
+     * @param prov sigla della provincia del nuovo centro vaccinale
+     * @param via via dell'indirizzo del nuovo centro vaccinale
+     * @param tipo tipologia del nuovo centro vaccinale
+     * @param cap CAP del nuovo centro vaccinale
+     * @throws RemoteException
+     * @throws SQLException
+     */
     public Boolean registraCentroVaccinale(String nome, String comune, String qualif, String numCiv, String prov, String via, String tipo, int cap) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
         String indirizzo = qualif+" "+via+" "+numCiv+" "+comune+" "+"("+prov+")"+" "+cap;
@@ -79,6 +94,13 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return true;
     }
 
+    /**
+     * Metodo per verificare se un utente registrato sia già stato vaccinato
+     * @param username username dell'utente da verificare
+     * @return un container con all'interno una variabile booleana: true se l'utente risulta vaccinato, altrimenti false
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public Container verificaVaccinato(String username) throws RemoteException, SQLException
     {
@@ -122,6 +144,12 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return c;
     }
 
+    /**
+     * Metodo per generare un container che contenga i riferimenti a tutti i centri vaccinali come nome e indirizzo
+     * @return un container con all'interno due ArrayList di String, che contengono rispettavimante il nome dei centri vaccinali e il loro indirizzo
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public Container listaCentriVaccinali() throws RemoteException, SQLException
     {
@@ -150,6 +178,13 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return c;
     }
 
+    /**
+     * Metodo per controllare le informazioni principali di un cittadino registrato, come nome, cognome, codice fiscale e centro vaccinale di appartenenza
+     * @param username username dell'utente per cui si devono ricercare le informazioni
+     * @return un container con all'interno quattro String, contenenti rispettivamente nome, cognome, codice fiscale e centro vaccinale di appartenenza
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public Container infoCittadinoRegistrato(String username) throws RemoteException, SQLException
     {
@@ -168,6 +203,14 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return c;
     }
 
+    /**
+     * Metodo per controllare il tempo passato tra la vaccinazione di un cittadino e il giorno in cui vuole compilare il form per gli eventi avversi successivi la vaccinazione
+     * @param cf codice fiscale dell'utente
+     * @param nCent nome del centro vaccinale di appartenenza dell'utente
+     * @return un intero dei giorni passati tra la vaccinazione e il giorno dove avviene il tentativo di compilare il form per gli eventi avversi: intero positivo se l'utente ha già effettuato una o due vaccinazione, -2 se l'utente non ha ancora effettuato una vaccinazione
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public int controllaRoomDosi(String cf,String nCent) throws RemoteException, SQLException
     {
@@ -200,25 +243,29 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return -2;
     }
 
+    /**
+     * Metodo per recuperare le informazioni relative al report degli eventi avversi avvenuti a seguito della vaccinazione ovvero intensità dei disturbi
+     * @param cf codice fiscale dell'utente
+     * @param nCen nome del centro vaccinale di appartenenza dell'utente
+     * @return un container con all'interno sei Interi, che indicano rispettivamente l'intensità di mal di testa, di febbre, di dolori muscolari, di linfoadenopatia, di tachicardia e di crisi ipertensiva
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
-    public Container infoReportVaccinato(String cf, String nCen) throws RemoteException, SQLException
-    {
+    public Container infoReportVaccinato(String cf, String nCen) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
         String query = "SELECT Testa,Febbre,Dolori,Linfo,Tachicardia,Crisi FROM \"Sintomi_"+nCen+"\" WHERE codicefiscale = '"+cf+"'";
         PreparedStatement stm3 = con.prepareStatement(query);
         ResultSet rs4 = stm3.executeQuery();
         var c = new Container();
-        if(rs4.next())
-        {
+        if(rs4.next()) {
             c.setObject(rs4.getInt("Testa"));
             c.setObject(rs4.getInt("Febbre"));
             c.setObject(rs4.getInt("Dolori"));
             c.setObject(rs4.getInt("Linfo"));
             c.setObject(rs4.getInt("Tachicardia"));
             c.setObject(rs4.getInt("Crisi"));
-        }
-        else
-        {
+        } else {
             c.setObject(0);
             c.setObject(0);
             c.setObject(0);
@@ -229,6 +276,14 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return c;
     }
 
+    /**
+     * Metodo per recuperare le informazioni relative al report degli eventi avversi avvenuti a seguito della vaccinazione ovvero note facoltative
+     * @param cf codice fiscale dell'utente
+     * @param nCen nome del centro vaccinale di appartenenza dell'utente
+     * @return un container con all'interno sei String, che indicano rispettivamente le note facoltative di mal di testa, di febbre, di dolori muscolari, di linfoadenopatia, di tachicardia e di crisi ipertensiva
+     * @throws RemoteException
+     * @throws SQLException
+     */
     public Container infoNoteVaccinato(String cf, String nCen) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
         String query = "SELECT testanote,febbrenote,dolorinote,linfonote,tachinote,crisinote FROM \"Sintomi_" + nCen + "\" WHERE codicefiscale = '" + cf + "'";
@@ -247,26 +302,36 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return c1;
     }
 
+    /**
+     * Metodo per verificare l'esistenza di un codice fiscale all'interno del sistema:
+     * @param cf codice fiscale da ricercare
+     * @return una variabile booleana: true se il codice fiscale ricercato è stato trovato all'interno del database,  altrimenti false
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
-    public boolean esisteCodiceFiscale(String cf) throws RemoteException, SQLException
-    {
+    public boolean esisteCodiceFiscale(String cf) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
         PreparedStatement ps = con.prepareStatement("SELECT 1 AS Result FROM cittadini_registrati WHERE codicefiscale ='" + cf + "' LIMIT 1");
         ResultSet rs = ps.executeQuery();
-        while (rs.next())
-        {
-            try
-            {
+        while (rs.next()) {
+            try {
                 return rs.getInt("Result") == 1;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 return false;
             }
         }
         return false;
     }
 
+    /**
+     * Metodo per verificare se il determinato utente sia registrato all'interno del centro vaccinale richiesto
+     * @param cf codice fiscale dell'utente
+     * @param nCen nome del centro vaccinale richiesto per il controllo
+     * @return una variabile booleana: true se il codice fiscale dell'utente è registrato all'interno del centro vaccinale passato come parametro, altrimenti false
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public boolean codiceFiscaleRegistratoInCentro(String cf, String nCen) throws RemoteException, SQLException
     {
@@ -287,28 +352,19 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return false;
     }
 
-    @Override
-    public boolean inserisciNote(int id, String n1, String n2, String n3, String n4, String n5, String n6,String cf, String centro) throws RemoteException,SQLException {
+    /**
+     * Metodo per registrate la vaccinazione di un determinato cittadino sul sistema, differenziando l'update della tabella del database tra prima e seconda dose
+     * @param centro nome del centro vaccinale dove è stata eseguita la vaccinazione
+     * @param codf codice fiscale del cittadino vaccinato
+     * @param data data di vaccinazione
+     * @param vacc tipologia di vaccino somministrato
+     * @param secondaDose true se è stata somministrata come seconda dose, altrimenti false
+     * @throws RemoteException
+     * @throws SQLException
+     */
+    public void registraVaccinato(String centro, String codf, String data, String vacc, boolean secondaDose) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
-        PreparedStatement stm2 = con.prepareStatement("SELECT codicefiscale FROM cittadini_registrati WHERE idvac="+id);
-        ResultSet rs2 = stm2.executeQuery();
-        if(rs2.next()) {
-            String codf = rs2.getString(1);
-            String query1 = "SELECT codicefiscale FROM \"Sintomi_" + centro + "\" WHERE codicefiscale = '" + cf + "'";
-            stm2 = con.prepareStatement(query1);
-            ResultSet rs3 = stm2.executeQuery();
-            if (rs3.next()) {
-                String query2 = "UPDATE \"Sintomi_" + centro + "\" SET testanote = '" + n1 + "' ,febbrenote = '" + n2 + "' ,dolorinote = '" + n3 + "' ," +
-                        "linfonote = '" + n4 + "' ,tachinote = '" + n5 + "' ,crisinote = '" + n6 + "' WHERE codicefiscale = '" + codf + "'";
-                PreparedStatement stm3 = con.prepareStatement(query2);
-                stm3.executeUpdate();
-            }
-        }
-        return true;
-    }
-
-    public void registraVaccinato(String centro, String codf, String data, String vacc, boolean secondaDose) throws RemoteException, SQLException, ParseException {
-        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
+        System.out.println(centro+codf+data+vacc+secondaDose);
         if (secondaDose){
             PreparedStatement ps1 = con.prepareStatement("UPDATE \"Vaccinati_" + centro + "\" SET Data_Seconda_Dose='" + data + "' WHERE CodiceFiscale='" + codf + "'");
             ps1.executeUpdate();
@@ -318,6 +374,16 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         }
     }
 
+    /**
+     * Metodo per controllare che la data inserita per la seconda dose sia successiva alla prima
+     * @param d2 data della seconda dose
+     * @param centro nome del centro vaccinale dove è stata eseguita la vaccinazione
+     * @param codf codice fiscale del cittadino vaccinato
+     * @return una variabile booleana: true se la data inserita per la seconda dose è successiva a quella della prima, altrimenti false
+     * @throws ParseException
+     * @throws SQLException
+     * @throws RemoteException
+     */
     public Boolean checkData(String d2, String centro, String codf) throws ParseException, SQLException, RemoteException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
         PreparedStatement psData = con.prepareStatement("SELECT Data_Prima_Dose FROM public.\"Vaccinati_"+ centro +"\" WHERE CodiceFiscale='"+ codf + "' LIMIT 1");
@@ -332,6 +398,13 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     }
 
 
+    /**
+     * Metodo per la ricerca di un centro vaccinale tramite nome
+     * @param centro nome del centro vaccinale
+     * @return una DefaulListModel contenente i risultati della ricerca
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public DefaultListModel<String> cercaCentroVaccinale(String centro) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
@@ -345,6 +418,14 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return l;
     }
 
+    /**
+     * Metodo per la ricerca di un centro vaccinale tramite comune e tipologia
+     * @param comune comune del centro vaccinale
+     * @param tipo tipologia del centro vaccinale
+     * @return una DefaulListModel contenente i risultati della ricerca
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public DefaultListModel<String> cercaCentroVaccinale(String comune, String tipo) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
@@ -359,9 +440,9 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     }
 
     /**
-     * metodo per la viduall
+     * Metodo per visualizzare le informazioni relative ad un determinato centro vaccinale e un prospetto riassuntivo delle segnalazioni degli eventi avversi
      * @param nome nome del centro vaccinale
-     * @return
+     * @return una String dove nella prima parte sono mostrate le informazioni generali relative al centro vaccinale e nella seconda parte viene mostrato il prospetto delle segnalazioni degli eventi avversi
      * @throws RemoteException
      * @throws SQLException
      */
@@ -391,17 +472,17 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     }
 
     /**
-     * descisdfghjkl
-     * @param id id del vaccinato
-     * @param malt
-     * @param febbre
-     * @param dolori
-     * @param linfo
-     * @param tachi
-     * @param crisi
-     * @param cf
-     * @param centro
-     * @return
+     * Metodo per inserire o aggiornare il report sulle segnalazioni avverse di un utente all'interno del centro vaccinale dove è avvenuta la vaccinazione
+     * @param id intero id univoco dell'utente
+     * @param malt severità mal di testa
+     * @param febbre severità febbre
+     * @param dolori severità dolori muscolari
+     * @param linfo severità linfoadenopatia
+     * @param tachi severità tachicardia
+     * @param crisi severità crisi ipertensiva
+     * @param cf codice fiscale dell'utente
+     * @param centro nome del centro vaccinale dove è avvenuta la vaccinazione
+     * @return una variabile booleana: true se l'inserimento o l'aggiornamento è avvenuto, altrimenti false
      * @throws RemoteException
      * @throws SQLException
      */
@@ -436,6 +517,48 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return true;
     }
 
+    /**
+     * Metodo per inserire o aggiornare le note del report sulle segnalazioni avverse di un utente all'interno del centro vaccinale dove è avvenuta la vaccinazione
+     * @param id intero id univoco dell'utente
+     * @param n1 note facoltative mal di testa
+     * @param n2 note facoltative febbre
+     * @param n3 note facoltative dolori muscolari
+     * @param n4 note facoltative linfoadenopatia
+     * @param n5 note facoltative tachicardia
+     * @param n6 note facoltative crisi ipertensiva
+     * @param cf codice fiscale dell'utente
+     * @param centro nome del centro vaccinale dove è avvenuta la vaccinazione
+     * @return una variabile booleana: true se l'inserimento o l'aggiornamento è avvenuto, altrimenti false
+     * @throws RemoteException
+     * @throws SQLException
+     */
+    @Override
+    public boolean inserisciNote(int id, String n1, String n2, String n3, String n4, String n5, String n6,String cf, String centro) throws RemoteException,SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
+        PreparedStatement stm2 = con.prepareStatement("SELECT codicefiscale FROM cittadini_registrati WHERE idvac="+id);
+        ResultSet rs2 = stm2.executeQuery();
+        if(rs2.next()) {
+            String codf = rs2.getString(1);
+            String query1 = "SELECT codicefiscale FROM \"Sintomi_" + centro + "\" WHERE codicefiscale = '" + cf + "'";
+            stm2 = con.prepareStatement(query1);
+            ResultSet rs3 = stm2.executeQuery();
+            if (rs3.next()) {
+                String query2 = "UPDATE \"Sintomi_" + centro + "\" SET testanote = '" + n1 + "' ,febbrenote = '" + n2 + "' ,dolorinote = '" + n3 + "' ," +
+                        "linfonote = '" + n4 + "' ,tachinote = '" + n5 + "' ,crisinote = '" + n6 + "' WHERE codicefiscale = '" + codf + "'";
+                PreparedStatement stm3 = con.prepareStatement(query2);
+                stm3.executeUpdate();
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Metodo per controllare username e password di un utente che cerca di effettuare il LogIn
+     * @param user username dell'utente
+     * @return un container con all'interno due String contenenti rispettivamente l'username e la password
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public Container logCittadino(String user) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
@@ -450,14 +573,27 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return c;
     }
 
+    /**
+     * Metodo per registrare un utente alla piattaforma e inserire tutte le sue infomazioni nel database
+     * @param n nome dell'utente
+     * @param c cognome dell'utente
+     * @param cf codice fiscale dell'utente
+     * @param em email dell'utente
+     * @param u username dell'utente
+     * @param p password dell'utente
+     * @param nCen nome del centro scelto per la sommistrazione del vaccino
+     * @return una variabile booleana: true se la registrazione è avvenuata, altrimenti false
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public Boolean registraCittadino(String n,String c,String cf, String em, String u,String p, String nCen) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername,mPassword);
-        PreparedStatement stmt = con.prepareStatement("SELECT Username FROM Cittadini_Registrati WHERE Username = ?");
+        PreparedStatement stmt = con.prepareStatement("SELECT Username FROM Cittadini_Registrati WHERE Username = ? OR codicefiscale = ?");
         stmt.setString(1,u);
+        stmt.setString(2,cf);
         ResultSet rs = stmt.executeQuery();
-        if(rs.next() == false)
-        {
+        if(rs.next() == false) {
             String query = "INSERT INTO Cittadini_Registrati (Nome,Cognome,CodiceFiscale,Email,Username,Pass, centro) VALUES (?,?,?,?,?,?,?)";
             PreparedStatement stmt2 = con.prepareStatement(query);
             stmt2.setString(1, n);
@@ -485,16 +621,16 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
 
     }
 
-
-    public static void main(String[] args) throws SQLException, RemoteException
-    {
-        try
-        {
-
+    /**
+     * Metodo principale per inizializzare il Server. Richiesta username e password per accedere a PostreSQL. Tentativo di connessione al databe: in caso dia esito negativo creazione database e tabelle principali
+     * @throws SQLException
+     * @throws RemoteException
+     */
+    public static void main(String[] args) throws SQLException, RemoteException {
+        try {
             //#region ASK INPUTS
             var conn = false;
-            do
-            {
+            do {
                 mUsername = JOptionPane.showInputDialog(null,"Inserisci lo username:");
                 if (mUsername==null || mUsername.isEmpty()) System.exit(0);
                 JPasswordField pass = new JPasswordField();
@@ -516,7 +652,6 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                     }
 
                 }
-
             }
             while(conn == false);
             //#endregion

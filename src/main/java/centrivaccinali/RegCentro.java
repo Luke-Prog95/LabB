@@ -1,7 +1,7 @@
 /*
     Limiti Luca 738873 (sede VA)
     Zehhaf Ishak 737763 (sede VA)
-    Ferro Paolo (sede VA)
+    Ferro Paolo 737529 (sede VA)
  */
 
 package centrivaccinali;
@@ -17,6 +17,9 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.SQLException;
 
+/**
+ * Classe per registrare un nuovo centro vaccinale
+ */
 public class RegCentro {
     private JFrame cenFrame;
     private JTextField nome;
@@ -35,10 +38,12 @@ public class RegCentro {
     private String tipo = "";
     private serverCVInterface server;
 
-    public RegCentro() throws RemoteException
-    {
-        try
-        {
+    /**
+     * Metodo per gestire la connessione al server e impostare la GUI per la registrazione di un nuovo centro vaccinale
+     * @throws RemoteException
+     */
+    public RegCentro() throws RemoteException {
+        try {
             Registry reg = LocateRegistry.getRegistry();
             server = (serverCVInterface) reg.lookup("serverCV");
             cenFrame = new JFrame("RegCentro");
@@ -80,14 +85,11 @@ public class RegCentro {
                     }
                 }
             });
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println("Client err:"+e.getMessage());
             JOptionPane.showMessageDialog(null,"Errore nella connessione o nella lettura dei dati dal server");
             System.exit(1);
         }
-
     }
 
     public static boolean isNumber(String str, int l)

@@ -1,7 +1,7 @@
 /*
     Limiti Luca 738873 (sede VA)
     Zehhaf Ishak 737763 (sede VA)
-    Ferro Paolo (sede VA)
+    Ferro Paolo 737529 (sede VA)
  */
 
 package centrivaccinali;
@@ -18,6 +18,9 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.SQLException;
 
+/**
+ * Classe per far scegliere all'operatore vaccinale se aggiungere un nuovo centro vaccinale o confermare la vaccinazione di un vittadino
+ */
 public class operatoreCV {
     private JFrame oFrame;
     private JButton REGISTRACENTROButton;
@@ -26,6 +29,10 @@ public class operatoreCV {
     private serverCV s;
     private serverCVInterface server;
 
+    /**
+     * Metodo per impostare la GUI dell'operatore. Gestisce la connessione al server e la scelta di registrare un vaccinato o un centro vaccinale
+     * @throws RemoteException
+     */
     public operatoreCV() throws RemoteException {
         try {
             Registry reg = LocateRegistry.getRegistry();
@@ -68,8 +75,7 @@ public class operatoreCV {
     }
 
     /**
-     *
-     * @param args
+     * Metodo principale per istanziare la GUI per l'operatore vaccinale
      * @throws RemoteException
      */
     public static void main(String[] args) throws RemoteException {

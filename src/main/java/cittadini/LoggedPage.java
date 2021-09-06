@@ -1,7 +1,7 @@
 /*
     Limiti Luca 738873 (sede VA)
     Zehhaf Ishak 737763 (sede VA)
-    Ferro Paolo (sede VA)
+    Ferro Paolo 737529 (sede VA)
  */
 
 package cittadini;
@@ -19,6 +19,9 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.*;
 
+/**
+ * Classe per compilare il form degli eventi avversi avvenuti dopo la vaccinazione
+ */
 public class LoggedPage extends JFrame {
     private JFrame frame3;
     private JPanel panel4;
@@ -47,10 +50,14 @@ public class LoggedPage extends JFrame {
     private String centroVac;
     private String codf;
     private serverCVInterface server;
-    public LoggedPage(String utente, String id)
-    {
-        try
-        {
+
+    /**
+     * Metodo per gestire la connessione al server e impostare la GUI del form degli eventi avversi per un utente vaccinato
+     * @param utente username utente che richiede la compilazione del form
+     * @param id ID utente che richiede la compilazione del form
+     */
+    public LoggedPage(String utente, String id) {
+        try {
             Registry reg = LocateRegistry.getRegistry();
             server = (serverCVInterface) reg.lookup("serverCV");
             frame3 = new JFrame("Form");
@@ -80,18 +87,14 @@ public class LoggedPage extends JFrame {
             IDLabel.setText("ID: "+id);
             int days = server.controllaRoomDosi(codf,centroVac);
 
-            if(days == -2)
-            {
+            if(days == -2) {
                 frame3.setVisible(false);
                 JOptionPane.showMessageDialog(confermaButton, "Non hai ancora effettuato una vaccinazione!");
                 new utenteCV();
             }
-            if(days >= -1 && days < 14)
-            {
+            if(days >= -1 && days < 14) {
                 frame3.setVisible(true);
-            }
-            else
-            {
+            } else {
                 frame3.setVisible(false);
                 JOptionPane.showMessageDialog(confermaButton, "Passati più di 14 giorni per compilare il form!");
                 new utenteCV();
@@ -204,7 +207,6 @@ public class LoggedPage extends JFrame {
                 }
             });
 
-
             confermaButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -221,12 +223,10 @@ public class LoggedPage extends JFrame {
                 }
             });
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             System.out.println("Client err:"+e.getMessage());
             JOptionPane.showMessageDialog(null,"Errore nella connessione o nella lettura dei dati dal server");
             System.exit(1);
         }
-
     }
 }

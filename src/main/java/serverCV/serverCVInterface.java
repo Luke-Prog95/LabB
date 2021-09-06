@@ -1,7 +1,7 @@
 /*
     Limiti Luca 738873 (sede VA)
     Zehhaf Ishak 737763 (sede VA)
-    Ferro Paolo (sede VA)
+    Ferro Paolo 737529 (sede VA)
  */
 
 package serverCV;
@@ -15,6 +15,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 
+/**
+ * Interfaccia remota del server contenente tutti i metodi utilizzati dal client
+ */
 public interface serverCVInterface extends Remote
 {
     public DefaultListModel<String> cercaCentroVaccinale(String centro) throws RemoteException, SQLException;

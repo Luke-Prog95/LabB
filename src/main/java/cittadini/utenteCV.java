@@ -1,7 +1,7 @@
 /*
     Limiti Luca 738873 (sede VA)
     Zehhaf Ishak 737763 (sede VA)
-    Ferro Paolo (sede VA)
+    Ferro Paolo 737529 (sede VA)
  */
 
 package cittadini;
@@ -18,6 +18,9 @@ import java.rmi.registry.Registry;
 import java.sql.*;
 import java.util.Scanner;
 
+/**
+ * Classe per effettuare il LogIn con collegamenti al form di registrazione di un nuovo utente e alla ricerca relativa ai centri vaccinali
+ */
 public class utenteCV extends JFrame {
     private JTextField userText;
     private JPanel panel1;
@@ -29,6 +32,11 @@ public class utenteCV extends JFrame {
     private Scanner scan;
     private serverCVInterface server;
 
+    /**
+     * Metodo per gestire la connessione al server e per impostare la GUI del LogIn di un utente
+     * @throws SQLException
+     * @throws RemoteException
+     */
     public utenteCV() throws SQLException, RemoteException {
         try {
             Registry reg = LocateRegistry.getRegistry();
@@ -59,37 +67,26 @@ public class utenteCV extends JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-
                         String user = userText.getText();
                         String p = password.getText();
                         Container c = server.logCittadino(user).Clone();
-                        if (user.equals("") || p.equals(""))
-                        {
+                        if (user.equals("") || p.equals("")) {
                             JOptionPane.showMessageDialog(signInButton, "Campo user o password vuoti!");
                         }
-                        else if (c.getString(0) == "")
-                        {
+                        else if (c.getString(0) == "") {
                             JOptionPane.showMessageDialog(logInButton, "Utente Non Registrato!");
-                        }
-                        else
-                        {
+                        } else {
                             String pas = c.getString(1);
-                            if (pas.equals(p))
-                            {
+                            if (pas.equals(p)) {
                                 var container = server.verificaVaccinato(user);
-                                if(container.getBool(1))
-                                {
+                                if(container.getBool(1)) {
                                     JOptionPane.showMessageDialog(logInButton, "Sei Loggato!");
                                     frame.setVisible(false);
                                     new LoggedPage(user,container.getString(0));
-                                }
-                                else
-                                {  //ToDo cambiare ui dopo il log
+                                } else {
                                     JOptionPane.showMessageDialog(logInButton, "Utente: "+user+"\nNon hai ancora effettuato il vaccino!\nNon è possibile compilare il report!");
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 JOptionPane.showMessageDialog(logInButton, "Password errata!");
                             }
                         }
@@ -106,12 +103,18 @@ public class utenteCV extends JFrame {
                         new SearchPage();
                 }
             });
+
         } catch (Exception e) {
             System.out.println("Client err:"+e.getMessage());
             JOptionPane.showMessageDialog(null,"Errore nella connessione o nella lettura dei dati dal server");
         }
     }
 
+    /**
+     * Metodo principale per istanziare la GUI per l'utente
+     * @throws SQLException
+     * @throws RemoteException
+     */
     public static void main(String[] args) throws SQLException, RemoteException {
         new utenteCV();
     }

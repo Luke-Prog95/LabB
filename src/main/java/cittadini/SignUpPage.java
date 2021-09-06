@@ -1,7 +1,7 @@
 /*
     Limiti Luca 738873 (sede VA)
     Zehhaf Ishak 737763 (sede VA)
-    Ferro Paolo (sede VA)
+    Ferro Paolo 737529 (sede VA)
  */
 
 package cittadini;
@@ -18,6 +18,9 @@ import java.rmi.registry.Registry;
 import java.sql.*;
 import java.util.ArrayList;
 
+/**
+ * Classe per la registrazione di un nuovo utente con l'inserimento di tutte le sue informazioni e della scelta di un centro vaccinale per eseguire la vaccinazione
+ */
 public class SignUpPage extends JFrame {
     private JPanel panel2;
     private JFrame frame1;
@@ -32,10 +35,12 @@ public class SignUpPage extends JFrame {
     private JButton button1;
     private serverCVInterface server;
 
-    public SignUpPage() throws SQLException
-    {
-        try
-        {
+    /**
+     * Classe per gestire la connessione al server e impostare la GUI del form di registrazione di un nuovo utente con controlli sugli inserimenti delle informazioni
+     * @throws SQLException
+     */
+    public SignUpPage() throws SQLException {
+        try {
             Registry reg = LocateRegistry.getRegistry();
             server = (serverCVInterface) reg.lookup("serverCV");
             frame1 = new JFrame("SignUp");

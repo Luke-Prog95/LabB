@@ -1,7 +1,7 @@
 /*
     Limiti Luca 738873 (sede VA)
     Zehhaf Ishak 737763 (sede VA)
-    Ferro Paolo (sede VA)
+    Ferro Paolo 737529 (sede VA)
  */
 
 package cittadini;
@@ -21,6 +21,9 @@ import java.rmi.registry.Registry;
 import java.sql.*;
 import java.util.ArrayList;
 
+/**
+ * Classe per la ricerca di un centro vaccinale e la visualizzazione delle sue informazioni principali e del prospetto riassuntivo delle segnalazioni degli eventi avversi
+ */
 public class SearchPage extends JFrame {
     private JPanel panel1;
     private JTextArea textArea1;
@@ -34,17 +37,17 @@ public class SearchPage extends JFrame {
     private JFrame frame;
     private serverCVInterface server;
 
-    public SearchPage()
-    {
-        try
-        {
+    /**
+     * Metodo per gestire la connessione al server e impostare la GUI per la ricerca di un centro vaccinale e delle sue informazioni
+     */
+    public SearchPage() {
+        try {
             Registry reg = LocateRegistry.getRegistry();
             server = (serverCVInterface) reg.lookup("serverCV");
             frame = new JFrame("Search");
             frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
             frame.setPreferredSize(new Dimension(500, 450));
             frame.setResizable(false);
-
             frame.add(panel1);
             frame.pack();
             frame.setLocationRelativeTo(null);
@@ -55,8 +58,7 @@ public class SearchPage extends JFrame {
             var c = server.listaCentriVaccinali().Clone();
             var cobj = (ArrayList<String>)c.getObject(0);
             var cobjadd = (ArrayList<String>)c.getObject(1);
-            for(int i = 0; i < cobj.size(); i++)
-            {
+            for(int i = 0; i < cobj.size(); i++) {
                 l.addElement(cobj.get(i)+" ("+cobjadd.get(i)+")");
             }
             lista.setModel(l);
@@ -80,12 +82,12 @@ public class SearchPage extends JFrame {
                         if (nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty()){
                             JOptionPane.showMessageDialog(cercaButton, "Nessun criterio inserito");
                             lista.setModel(l);
-                        }
-                        else if (!nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
+                        } else if (!nomeText.getText().trim().isEmpty() && comuneText.getText().trim().isEmpty() && tipoText.getText().trim().isEmpty())
                             lista.setModel(server.cercaCentroVaccinale(nomeText.getText().trim()));
                         else if (nomeText.getText().trim().isEmpty() && !comuneText.getText().trim().isEmpty() && !tipoText.getText().trim().isEmpty())
                             lista.setModel(server.cercaCentroVaccinale(comuneText.getText().trim(), tipoText.getText().trim()));
-                        else JOptionPane.showMessageDialog(cercaButton, "Criteri non adatti");
+                        else
+                            JOptionPane.showMessageDialog(cercaButton, "Criteri non adatti");
                     } catch (RemoteException | SQLException ex) {
                         ex.printStackTrace();
                     }
@@ -104,14 +106,12 @@ public class SearchPage extends JFrame {
                     }
                 }
             });
-        }
-        catch (Exception e)
-        {
+
+        } catch (Exception e) {
             System.out.println("Client err:"+e.getMessage());
             JOptionPane.showMessageDialog(null,"Errore nella connessione o nella lettura dei dati dal server");
             System.exit(1);
         }
     }
-
 }
 

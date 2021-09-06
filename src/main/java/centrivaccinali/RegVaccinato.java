@@ -1,7 +1,7 @@
 /*
     Limiti Luca 738873 (sede VA)
     Zehhaf Ishak 737763 (sede VA)
-    Ferro Paolo (sede VA)
+    Ferro Paolo 737529 (sede VA)
  */
 
 package centrivaccinali;
@@ -23,6 +23,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
 
+/**
+ * Classe per registare l'avvenuta vaccinazione di un cittadino
+ */
 public class RegVaccinato extends JFrame{
 
     private JPanel panel1;
@@ -36,10 +39,13 @@ public class RegVaccinato extends JFrame{
     private Scanner scan;
     private String[] vaxList = {"Pfizer", "AstraZeneca", "Moderna", "J&J"};
     private serverCVInterface server;
-    public RegVaccinato() throws SQLException
-    {
-        try
-        {
+
+    /**
+     * Metodo per gestire la connessione al server e impostare la GUI per la registrazione di avvenuta vaccinazione di un cittadino
+     * * @throws SQLException
+     */
+    public RegVaccinato() throws SQLException {
+        try {
             Registry reg = LocateRegistry.getRegistry();
             server = (serverCVInterface) reg.lookup("serverCV");
             scan = new Scanner(System.in);
@@ -51,17 +57,14 @@ public class RegVaccinato extends JFrame{
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
-            try
-            {
+            try {
                 var c = server.listaCentriVaccinali().Clone();
                 var obj = (ArrayList<String>) c.getObject(0);
-                for(int i = 0; i < obj.size();i++)
-                {
+                for(int i = 0; i < obj.size();i++) {
                     centriVacc.addItem(obj.get(i));
                 }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            } catch (SQLException ex) { ex.printStackTrace();}
+
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Calendar cal = Calendar.getInstance();
             Date today = cal.getTime();
@@ -108,6 +111,5 @@ public class RegVaccinato extends JFrame{
         }
 
     }
-
 }
 
