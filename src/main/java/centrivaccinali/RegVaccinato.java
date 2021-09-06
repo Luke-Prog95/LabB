@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -85,11 +86,13 @@ public class RegVaccinato extends JFrame{
                             }
                             else
                             {
+                                if(!secondaDose.isSelected() || (secondaDose.isSelected() && server.checkData(data.getText(),centriVacc.getSelectedItem().toString(), cf.getText()))){
                                 server.registraVaccinato(centriVacc.getSelectedItem().toString(), cf.getText(), data.getText(), vaccini.getSelectedItem().toString(), secondaDose.isSelected());
                                 JOptionPane.showMessageDialog(conferma, "Utente vaccinato");
-                                frame.setVisible(false);
+                                frame.setVisible(false);}
+                                else JOptionPane.showMessageDialog(null,"Data seconda dose non valida!");
                             }
-                        } catch (SQLException | RemoteException throwables) {
+                        } catch (SQLException | RemoteException | ParseException throwables) {
                             throwables.printStackTrace();
 
                         }
@@ -105,5 +108,6 @@ public class RegVaccinato extends JFrame{
         }
 
     }
+
 }
 

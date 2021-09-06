@@ -16,7 +16,10 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 
 public class serverCV extends UnicastRemoteObject implements serverCVInterface {
@@ -304,7 +307,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return true;
     }
 
-    public void registraVaccinato(String centro, String codf, String data, String vacc, boolean secondaDose) throws RemoteException, SQLException {
+    public void registraVaccinato(String centro, String codf, String data, String vacc, boolean secondaDose) throws RemoteException, SQLException, ParseException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
         if (secondaDose){
             PreparedStatement ps1 = con.prepareStatement("UPDATE \"Vaccinati_" + centro + "\" SET Data_Seconda_Dose='" + data + "' WHERE CodiceFiscale='" + codf + "'");
@@ -313,6 +316,19 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             PreparedStatement ps2 = con.prepareStatement("UPDATE \"Vaccinati_" + centro + "\" SET Data_Prima_Dose='" + data + "', vaccino='" + vacc + "' WHERE CodiceFiscale='" + codf + "'");
             ps2.executeUpdate();
         }
+    }
+
+    public Boolean checkData(String d2, String centro, String codf) throws ParseException, SQLException, RemoteException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
+        PreparedStatement psData = con.prepareStatement("SELECT Data_Prima_Dose FROM public.\"Vaccinati_"+ centro +"\" WHERE CodiceFiscale='"+ codf + "' LIMIT 1");
+        Boolean res;
+        ResultSet rs = psData.executeQuery();
+        rs.next();
+        java.util.Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(rs.getString("Data_Prima_Dose"));
+        Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(d2);
+        if(date1.compareTo(date2) > 0 || date1.compareTo(date2) == 0)  res = false;
+        else res = true;
+        return res;
     }
 
 
