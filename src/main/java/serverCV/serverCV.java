@@ -1,3 +1,9 @@
+/*
+    Limiti Luca 738873 (sede VA)
+    Zehhaf Ishak 737763 (sede VA)
+    Ferro Paolo (sede VA)
+ */
+
 package serverCV;
 
 import centrivaccinali.RegVaccinato;
@@ -65,7 +71,7 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             stmt2.execute();
             PreparedStatement stmt3 = con.prepareStatement(query1);
             stmt3.execute();
-            System.out.println("Centro vaccinale "+ nome + "registrato");
+            System.out.println("Centro vaccinale "+ nome + " registrato");
         }
         return true;
     }
@@ -499,20 +505,18 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
             while(conn == false);
             //#endregion
             Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
-            System.out.println("\nServer connesso al database");
+            /*System.out.println("\nServer connesso al database");
             Thread.sleep(1000);
             System.out.println("\n... Tentativo di creazione del registry ...");
-            Thread.sleep(3000);
-            serverCV s = new serverCV();
-            Registry registro = LocateRegistry.createRegistry(1099);
-            registro.bind("serverCV",s);
-            System.out.println("\nServer ready in attesa di client\n");
+            Thread.sleep(3000);*/
+            runServerCV r = new runServerCV();
+            /*System.out.println("\nServer ready in attesa di client\n");
             while(true)
             {
                 System.out.println("Per uscire inserire \"exit\"");
                 String cmd = scan.next().toLowerCase();
                 if(cmd.equals("exit")) System.exit(1);
-            }
+            }*/
         } catch (PSQLException ex) {
             if(ex.getSQLState().equals("3D000")){
                 JOptionPane.showMessageDialog(null,"   Database non esistente creato!\nReinserire credenziali per accedere!");

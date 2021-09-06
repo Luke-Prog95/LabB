@@ -1,3 +1,9 @@
+/*
+    Limiti Luca 738873 (sede VA)
+    Zehhaf Ishak 737763 (sede VA)
+    Ferro Paolo (sede VA)
+ */
+
 package cittadini;
 
 import serverCV.serverCVInterface;
