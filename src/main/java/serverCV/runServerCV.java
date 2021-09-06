@@ -1,3 +1,10 @@
+/*
+    Limiti Luca 738873 (sede VA)
+    Zehhaf Ishak 737763 (sede VA)
+    Ferro Paolo 737529 (sede VA)
+    Casolo Ginelli Loris 737056 (sede VA)
+ */
+
 package serverCV;
 
 import javax.swing.*;
@@ -9,6 +16,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+/**
+ * Classe per inizializzare il server
+ */
 public class runServerCV extends JFrame {
     private JButton spegniServer;
     private JPanel panel1;
@@ -16,6 +26,11 @@ public class runServerCV extends JFrame {
     private JLabel label1;
     private JFrame frame;
 
+    /**
+     * Metodo per inizializzare il server
+     * @throws RemoteException
+     * @throws AlreadyBoundException
+     */
     public runServerCV() throws RemoteException, AlreadyBoundException {
         frame = new JFrame("Server");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

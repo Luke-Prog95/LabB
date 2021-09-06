@@ -2,6 +2,7 @@
     Limiti Luca 738873 (sede VA)
     Zehhaf Ishak 737763 (sede VA)
     Ferro Paolo 737529 (sede VA)
+    Casolo Ginelli Loris 737056 (sede VA)
  */
 
 package cittadini;
