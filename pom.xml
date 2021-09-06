@@ -46,7 +46,7 @@
                         </goals>
                         <id>build-server</id>
                         <configuration>
-                            <appendAssemblyId>true</appendAssemblyId>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
@@ -68,7 +68,7 @@
                         </goals>
                         <id>build-utenteCV</id>
                         <configuration>
-                            <appendAssemblyId>true</appendAssemblyId>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
@@ -90,7 +90,7 @@
                         </goals>
                         <id>build-operatoreCV</id>
                         <configuration>
-                            <appendAssemblyId>true</appendAssemblyId>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
