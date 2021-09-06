@@ -6,6 +6,9 @@
 
 package centrivaccinali;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import serverCV.serverCVInterface;
 
 import javax.swing.*;
@@ -26,7 +29,7 @@ import java.util.Scanner;
 /**
  * Classe per registare l'avvenuta vaccinazione di un cittadino
  */
-public class RegVaccinato extends JFrame{
+public class RegVaccinato extends JFrame {
 
     private JPanel panel1;
     private JTextField cf;
@@ -51,7 +54,7 @@ public class RegVaccinato extends JFrame{
             scan = new Scanner(System.in);
             frame = new JFrame("Registra Vaccinato");
             frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-            frame.setPreferredSize(new Dimension(500,450));
+            frame.setPreferredSize(new Dimension(500, 450));
             frame.setResizable(false);
             frame.add(panel1);
             frame.pack();
@@ -60,40 +63,39 @@ public class RegVaccinato extends JFrame{
             try {
                 var c = server.listaCentriVaccinali().Clone();
                 var obj = (ArrayList<String>) c.getObject(0);
-                for(int i = 0; i < obj.size();i++) {
+                for (int i = 0; i < obj.size(); i++) {
                     centriVacc.addItem(obj.get(i));
                 }
-            } catch (SQLException ex) { ex.printStackTrace();}
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             Calendar cal = Calendar.getInstance();
             Date today = cal.getTime();
             String hint = sdf.format(today);
             data.setText(hint);
-            for (int i=0; i<vaxList.length; i++){
+            for (int i = 0; i < vaxList.length; i++) {
                 vaccini.addItem(vaxList[i]);
             }
 
             conferma.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if(cf.getText().equals("") || cf.getText().trim().length()!=16 || data.getText().length()!=10) JOptionPane.showMessageDialog(conferma,"Codice fiscale errato o data non corretta");
+                    if (cf.getText().equals("") || cf.getText().trim().length() != 16 || data.getText().length() != 10)
+                        JOptionPane.showMessageDialog(conferma, "Codice fiscale errato o data non corretta");
                     else {
-                        try
-                        {
+                        try {
                             if (!server.esisteCodiceFiscale(cf.getText().trim()))
                                 JOptionPane.showMessageDialog(conferma, "Codice fiscale non trovato!");
-                            else if(!server.codiceFiscaleRegistratoInCentro(cf.getText().trim(),centriVacc.getSelectedItem().toString()))
-                            {
+                            else if (!server.codiceFiscaleRegistratoInCentro(cf.getText().trim(), centriVacc.getSelectedItem().toString())) {
                                 JOptionPane.showMessageDialog(conferma, "Attenzione, l'utente non è registrato in questo centro!");
-                            }
-                            else
-                            {
-                                if(!secondaDose.isSelected() || (secondaDose.isSelected() && server.checkData(data.getText(),centriVacc.getSelectedItem().toString(), cf.getText()))){
-                                server.registraVaccinato(centriVacc.getSelectedItem().toString(), cf.getText(), data.getText(), vaccini.getSelectedItem().toString(), secondaDose.isSelected());
-                                JOptionPane.showMessageDialog(conferma, "Utente vaccinato");
-                                frame.setVisible(false);}
-                                else JOptionPane.showMessageDialog(null,"Data seconda dose non valida!");
+                            } else {
+                                if (!secondaDose.isSelected() || (secondaDose.isSelected() && server.checkData(data.getText(), centriVacc.getSelectedItem().toString(), cf.getText()))) {
+                                    server.registraVaccinato(centriVacc.getSelectedItem().toString(), cf.getText(), data.getText(), vaccini.getSelectedItem().toString(), secondaDose.isSelected());
+                                    JOptionPane.showMessageDialog(conferma, "Utente vaccinato");
+                                    frame.setVisible(false);
+                                } else JOptionPane.showMessageDialog(null, "Data seconda dose non valida!");
                             }
                         } catch (SQLException | RemoteException | ParseException throwables) {
                             throwables.printStackTrace();
@@ -102,14 +104,71 @@ public class RegVaccinato extends JFrame{
                     }
                 }
             });
-        }
-        catch (Exception e)
-        {
-            System.out.println("Client err:"+e.getMessage());
-            JOptionPane.showMessageDialog(null,"Errore nella connessione o nella lettura dei dati dal server");
+        } catch (Exception e) {
+            System.out.println("Client err:" + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Errore nella connessione o nella lettura dei dati dal server");
             System.exit(1);
         }
 
     }
+
+    {
+// GUI initializer generated by IntelliJ IDEA GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
+    }
+
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        panel1 = new JPanel();
+        panel1.setLayout(new GridLayoutManager(8, 2, new Insets(0, 10, 0, 10), -1, -1));
+        final JLabel label1 = new JLabel();
+        label1.setText("Codice Fiscale");
+        panel1.add(label1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setText("Data Somministrazione");
+        panel1.add(label2, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        data = new JTextField();
+        panel1.add(data, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        cf = new JTextField();
+        panel1.add(cf, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label3 = new JLabel();
+        label3.setOpaque(false);
+        label3.setText("Centro Vaccinale");
+        label3.setVisible(true);
+        panel1.add(label3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        centriVacc = new JComboBox();
+        panel1.add(centriVacc, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label4 = new JLabel();
+        label4.setText("Vaccino Somministrato");
+        panel1.add(label4, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        vaccini = new JComboBox();
+        panel1.add(vaccini, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        conferma = new JButton();
+        conferma.setText("Conferma");
+        panel1.add(conferma, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        panel1.add(spacer1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final Spacer spacer2 = new Spacer();
+        panel1.add(spacer2, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        secondaDose = new JCheckBox();
+        secondaDose.setText("Seconda Dose");
+        panel1.add(secondaDose, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return panel1;
+    }
+
 }
 

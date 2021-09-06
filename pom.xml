@@ -27,8 +27,12 @@
             <artifactId>postgresql</artifactId>
             <version>42.2.23</version>
         </dependency>
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>forms_rt</artifactId>
+            <version>7.0.3</version>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -42,9 +46,10 @@
                         </goals>
                         <id>build-server</id>
                         <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
+                            <appendAssemblyId>true</appendAssemblyId>
                             <archive>
                                 <manifest>
+                                    <addClasspath>true</addClasspath>
                                     <mainClass>
                                         serverCV.serverCV
                                     </mainClass>
@@ -63,9 +68,10 @@
                         </goals>
                         <id>build-utenteCV</id>
                         <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
+                            <appendAssemblyId>true</appendAssemblyId>
                             <archive>
                                 <manifest>
+                                    <addClasspath>true</addClasspath>
                                     <mainClass>
                                         cittadini.utenteCV
                                     </mainClass>
@@ -84,9 +90,10 @@
                         </goals>
                         <id>build-operatoreCV</id>
                         <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
+                            <appendAssemblyId>true</appendAssemblyId>
                             <archive>
                                 <manifest>
+                                    <addClasspath>true</addClasspath>
                                     <mainClass>
                                         centrivaccinali.operatoreCV
                                     </mainClass>
@@ -102,5 +109,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
