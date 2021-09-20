@@ -61,6 +61,11 @@ public class operatoreCV {
         }
     }
 
+    /**
+     *
+     * @param args
+     * @throws RemoteException
+     */
     public static void main(String[] args) throws RemoteException {
         new operatoreCV();
     }

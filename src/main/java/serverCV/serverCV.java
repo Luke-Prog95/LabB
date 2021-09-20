@@ -156,7 +156,18 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
     public int controllaRoomDosi(String cf,String nCent) throws RemoteException, SQLException
     {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
-        String query = "SELECT ABS(DATE_PART('day', TO_DATE(data_seconda_dose,'DD/MM/YYYY')::timestamp - TO_DATE(data_prima_dose,'DD/MM/YYYY')::timestamp)) AS DateDiff FROM public.\"Vaccinati_"+nCent+"\" WHERE codicefiscale = '"+cf+"' LIMIT 1";
+        String query =
+                "SELECT ABS(DATE_PART('day', CURRENT_DATE::timestamp - \n" +
+                        "\t \t(SELECT \n" +
+                        "\t\t \tCASE \n" +
+                        "\t\t \t\tWHEN data_prima_dose IS NULL AND data_seconda_dose IS NULL \n" +
+                        "\t\t \t\t\tTHEN NULL \n" +
+                        "\t\t \t\tWHEN data_seconda_dose IS NULL \n" +
+                        "\t\t \t\t\tTHEN TO_DATE(data_prima_dose,'DD/MM/YYYY') \n" +
+                        "\t\t \t\tWHEN TO_DATE(data_prima_dose,'DD/MM/YYYY') >= TO_DATE(data_seconda_dose,'DD/MM/YYYY') \n" +
+                        "\t\t \t\t\tTHEN TO_DATE(data_prima_dose,'DD/MM/YYYY') \n" +
+                        "\t\t \t\tELSE TO_DATE(data_seconda_dose,'DD/MM/YYYY') END\n" +
+                        "\t\t)::timestamp)) AS DateDiff FROM public.\"Vaccinati_"+nCent+"\" WHERE codicefiscale = '"+cf+"' LIMIT 1";
         PreparedStatement stm = con.prepareStatement(query);
         ResultSet rs = stm.executeQuery();
         while (rs.next())
@@ -281,6 +292,13 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return l;
     }
 
+    /**
+     * metodo per la viduall
+     * @param nome nome del centro vaccinale
+     * @return
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public String visualizzaInfoCentroVaccinale(String nome) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
@@ -306,7 +324,21 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
         return risultato;
     }
 
-
+    /**
+     * descisdfghjkl
+     * @param id id del vaccinato
+     * @param malt
+     * @param febbre
+     * @param dolori
+     * @param linfo
+     * @param tachi
+     * @param crisi
+     * @param cf
+     * @param centro
+     * @return
+     * @throws RemoteException
+     * @throws SQLException
+     */
     @Override
     public Boolean inserisciEventiAvversi(int id,int malt, int febbre, int dolori, int linfo, int tachi, int crisi, String cf,String centro) throws RemoteException, SQLException {
         Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
@@ -404,13 +436,17 @@ public class serverCV extends UnicastRemoteObject implements serverCVInterface {
                     conn = true;
                     DriverManager.getConnection("jdbc:postgresql://localhost:5432/LabB", mUsername, mPassword);
                 }
-                catch (Exception e)
+                catch (PSQLException e)
                 {
-                    conn = false;
-
-                    var x = JOptionPane.showConfirmDialog(null,"Dati errati.\nRiprovare?","Connessione",JOptionPane.ERROR_MESSAGE,JOptionPane.OK_OPTION);
-                    if(x == JOptionPane.NO_OPTION) return;
+                    if(!e.getSQLState().equals("3D000"))
+                    {
+                        conn = false;
+                        var x = JOptionPane.showConfirmDialog(null,"Dati errati.\nRiprovare?","Connessione",JOptionPane.ERROR_MESSAGE,JOptionPane.OK_OPTION);
+                        if(x == JOptionPane.NO_OPTION) return;
+                    }
+                    JOptionPane.showConfirmDialog(null,"Il database non esiste.\n");
                 }
+
             }
             while(conn == false);
             //#endregion
